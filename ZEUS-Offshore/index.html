@@ -1,0 +1,1262 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZEUS Offshore</title>
+<meta name="theme-color" content="#0f2440">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ZEUS Offshore">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+:root{
+  --bg:#f4f6f9; --panel:#ffffff; --text:#14202e; --muted:#5f6f82; --line:#dfe5ec;
+  --brand:#0f2440; --brand2:#1d4f8f; --gold:#d4a62a; --gold-soft:#fbf3dc;
+  --ok:#1f8a4c; --ok-soft:#e3f4ea; --warn:#b26b00; --warn-soft:#fff1d6;
+  --bad:#c0392b; --bad-soft:#fde5e2; --info-soft:#e6eefa;
+  --radius:12px; --shadow:0 1px 3px rgba(15,36,64,.08),0 4px 14px rgba(15,36,64,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0d141d; --panel:#16202c; --text:#e7edf4; --muted:#93a3b5; --line:#263446;
+    --brand:#0a1828; --brand2:#5b93d6; --gold:#e3b843; --gold-soft:#3a3020;
+    --ok:#4cc483; --ok-soft:#173527; --warn:#f0a940; --warn-soft:#3b2c14;
+    --bad:#ff7a6b; --bad-soft:#3d1d1a; --info-soft:#1b2a3f;
+    --shadow:0 1px 3px rgba(0,0,0,.4);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand2)}
+[hidden]{display:none!important}
+
+/* layout */
+#app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+#nav{background:var(--brand);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 12px 18px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.logo{display:flex;align-items:center;gap:10px;padding:4px 10px 18px;font-weight:800;letter-spacing:.5px;font-size:18px}
+.logo .bolt{width:34px;height:34px;border-radius:9px;background:var(--gold);color:var(--brand);display:grid;place-items:center;font-size:20px}
+.logo small{display:block;font-weight:500;font-size:11px;opacity:.65;letter-spacing:1.5px}
+#nav a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;color:#dbe5f1;text-decoration:none;font-weight:550}
+#nav a:hover{background:rgba(255,255,255,.07)}
+#nav a.active{background:rgba(255,255,255,.13);color:#fff}
+#nav a .ic{width:22px;text-align:center;font-size:17px}
+#nav .spacer{flex:1}
+#nav .lockbtn{background:none;border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:10px;padding:9px;cursor:pointer}
+.badge-n{margin-left:auto;background:var(--bad);color:#fff;border-radius:20px;font-size:11px;padding:1px 7px;font-weight:700}
+main{padding:28px 32px 60px;max-width:1150px;width:100%}
+@media (max-width:820px){
+  #app{grid-template-columns:1fr}
+  #nav{position:fixed;bottom:0;top:auto;left:0;right:0;height:auto;flex-direction:row;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:20;gap:0}
+  #nav .logo,#nav .spacer{display:none}
+  #nav a{flex-direction:column;gap:2px;font-size:11px;padding:6px 4px;flex:1;text-align:center;position:relative}
+  #nav a .badge-n{position:absolute;top:0;right:18%;margin:0}
+  #nav .lockbtn{font-size:11px;padding:4px 8px;border:none}
+  main{padding:calc(16px + env(safe-area-inset-top)) 16px 110px}
+}
+
+/* generic */
+h1{font-size:26px;margin:0 0 4px}
+h2{font-size:18px;margin:0 0 12px}
+h3{font-size:15px;margin:0 0 8px}
+.sub{color:var(--muted);margin:0 0 20px}
+.head{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.head .grow{flex:1;min-width:200px}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:6px}
+.crumb a{text-decoration:none}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.stat{padding:16px 18px}
+.stat .n{font-size:30px;font-weight:800;line-height:1.1}
+.stat .l{color:var(--muted);font-size:13px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:600;text-decoration:none;color:var(--text);white-space:nowrap;min-height:40px}
+.btn:hover{border-color:var(--brand2)}
+.btn.primary{background:var(--brand2);border-color:var(--brand2);color:#fff}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#1b1404}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.danger{color:var(--bad);border-color:var(--bad-soft)}
+.btn.small{padding:5px 10px;min-height:32px;font-size:13px}
+.btn.big{padding:14px 20px;font-size:16px}
+.btn.ghost{background:none;border-color:transparent}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.list{display:flex;flex-direction:column}
+.item{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
+.item:last-child{border-bottom:none}
+a.item:hover{background:var(--bg)}
+.item .main{flex:1;min-width:0}
+.item .t{font-weight:600}
+.item .d{color:var(--muted);font-size:13px}
+.empty{color:var(--muted);padding:16px 4px;text-align:center}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:20px;background:var(--info-soft);color:var(--brand2);white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.gold{background:var(--gold-soft);color:var(--warn)}
+.pill.muted{background:var(--bg);color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.4px;padding:2px 7px;border-radius:6px;margin-right:4px;text-transform:uppercase}
+.tag.ap{background:#efe3ff;color:#6b2fb5}
+.tag.tr{background:#dff3ff;color:#0b6aa2}
+.tag.ce{background:var(--gold-soft);color:var(--warn)}
+.tag.rq{background:var(--bad-soft);color:var(--bad)}
+@media (prefers-color-scheme: dark){.tag.ap{background:#2e2142;color:#c9a4ff}.tag.tr{background:#14304a;color:#79c6ff}}
+.progress{height:8px;background:var(--line);border-radius:10px;overflow:hidden}
+.progress>div{height:100%;background:var(--ok);border-radius:10px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow-x:auto}
+.tabs a{padding:10px 14px;text-decoration:none;color:var(--muted);font-weight:600;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs a.active{color:var(--text);border-color:var(--gold)}
+.search{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.right{margin-left:auto}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:none;background:var(--panel);padding:6px 10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on.s-bad{background:var(--bad);color:#fff}
+.seg button.on.s-warn{background:var(--warn);color:#fff}
+.seg button.on.s-ok{background:var(--ok);color:#fff}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;word-break:break-word}
+
+/* steps */
+.steps{list-style:none;margin:0;padding:0}
+.step{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.step:last-child{border-bottom:none}
+.step .num{flex:0 0 34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--bg);color:var(--muted);border:2px solid var(--line)}
+.step.done .num{background:var(--ok);color:#fff;border-color:var(--ok)}
+.step.current{background:var(--gold-soft);margin:0 -18px;padding:16px 18px;border-radius:10px;border-bottom:none}
+.step.current .num{background:var(--gold);border-color:var(--gold);color:#1b1404}
+.step .body{flex:1}
+.step .t{font-weight:650}
+.step.done .t{color:var(--muted)}
+.step .i{color:var(--muted);font-size:13px;margin-top:2px}
+
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cal .dh{background:var(--bg);padding:6px;text-align:center;font-size:12px;font-weight:700;color:var(--muted)}
+.cal .day{background:var(--panel);min-height:96px;padding:5px;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.cal .day.out{opacity:.4}
+.cal .day.today .dn{background:var(--brand2);color:#fff;border-radius:50%}
+.cal .day.sel{outline:2px solid var(--gold);outline-offset:-2px}
+.cal .dn{font-size:12px;font-weight:700;width:22px;height:22px;display:grid;place-items:center}
+.cal .ev{font-size:11px;padding:1px 5px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--info-soft);color:var(--brand2)}
+.cal .ev.pay{background:var(--warn-soft);color:var(--warn)}
+.cal .ev.dl{background:var(--bad-soft);color:var(--bad)}
+.cal .ev.done{background:var(--ok-soft);color:var(--ok);text-decoration:line-through}
+@media (max-width:820px){.cal .day{min-height:58px}.cal .ev{font-size:0;height:6px;padding:0}}
+
+/* forms & modal */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-weight:600;font-size:13px}
+.field .hint{font-size:12px;color:var(--muted)}
+.field input:not([type=checkbox]),.field select,.field textarea{padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel);width:100%}
+.field textarea{min-height:80px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--brand2);outline-offset:0;border-color:transparent}
+.check{display:flex;align-items:center;gap:8px;font-weight:500;cursor:pointer}
+.check input{width:20px;height:20px}
+.req::after{content:" *";color:var(--bad)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:560px){.f2{grid-template-columns:1fr}.kv{grid-template-columns:1fr}.kv dt{margin-top:6px}}
+#modal-root .back{position:fixed;inset:0;background:rgba(8,16,28,.55);display:grid;place-items:center;z-index:50;padding:16px}
+#modal-root .modal{background:var(--panel);border-radius:16px;width:100%;max-width:560px;max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+#modal-root .modal.wide{max-width:820px}
+#modal-root .mh{padding:18px 20px 0;display:flex;align-items:center}
+#modal-root .mh h2{margin:0;flex:1}
+#modal-root .mb{padding:16px 20px}
+#modal-root .mf{padding:0 20px 18px;display:flex;gap:8px;justify-content:flex-end}
+#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--brand);color:#fff;padding:11px 18px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
+#toast.show{opacity:1}
+@media (max-width:820px){#toast{bottom:100px}}
+
+/* lock */
+#lock{position:fixed;inset:0;background:linear-gradient(160deg,#0f2440,#1d4f8f);display:grid;place-items:center;z-index:100;padding:20px}
+#lock .box{background:var(--panel);color:var(--text);border-radius:18px;padding:30px;width:100%;max-width:380px;box-shadow:0 30px 80px rgba(0,0,0,.35);text-align:center}
+#lock .bolt{width:64px;height:64px;border-radius:16px;background:var(--gold);color:#0f2440;display:grid;place-items:center;font-size:36px;margin:0 auto 12px}
+#lock h1{font-size:24px}
+#lock input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:10px;margin-top:10px;font-size:17px;background:var(--panel);text-align:center}
+#lock .btn{width:100%;justify-content:center;margin-top:14px}
+#lock .err{color:var(--bad);font-weight:600;min-height:22px;margin-top:8px}
+.note{background:var(--info-soft);border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:14px}
+.note.warn{background:var(--warn-soft)}
+.note.bad{background:var(--bad-soft)}
+.editor-item{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.editor-item .row input[type=text]{flex:1;min-width:180px}
+.editor-item input[type=text],.editor-item textarea,.editor-item select,.editor-item input[type=number]{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.editor-item textarea{width:100%;margin-top:6px;min-height:44px}
+</style>
+</head>
+<body>
+<div id="lock"></div>
+<div id="app" hidden>
+  <nav id="nav">
+    <div class="logo"><div class="bolt">⚡</div><div>ZEUS<small>OFFSHORE</small></div></div>
+    <a href="#/" data-nav="dash"><span class="ic">🏠</span>Přehled</a>
+    <a href="#/klienti" data-nav="clients"><span class="ic">👥</span>Klienti</a>
+    <a href="#/kalendar" data-nav="cal"><span class="ic">📅</span>Kalendář<span class="badge-n" id="dl-badge" hidden></span></a>
+    <a href="#/platby" data-nav="pay"><span class="ic">💳</span>Platby<span class="badge-n" id="pay-badge" hidden></span></a>
+    <a href="#/nastaveni" data-nav="set"><span class="ic">⚙️</span>Nastavení</a>
+    <div class="spacer"></div>
+    <button class="lockbtn" data-act="lock">🔒 Zamknout</button>
+  </nav>
+  <main id="main"></main>
+</div>
+<div id="modal-root"></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   ZEUS Offshore – offline evidence klientů a firem
+   Data jsou uložená jen v tomto zařízení (IndexedDB).
+   ========================================================= */
+
+// ---------- helpers ----------
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const pad = n => String(n).padStart(2, '0');
+const toISO = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const today = () => toISO(new Date());
+const parseISO = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const fmtDate = s => s ? parseISO(s).toLocaleDateString('cs-CZ') : '—';
+const daysUntil = s => Math.round((parseISO(s) - parseISO(today())) / 86400000);
+const MONTHS = ['leden','únor','březen','duben','květen','červen','červenec','srpen','září','říjen','listopad','prosinec'];
+const money = (a, c) => (a === '' || a == null) ? '—' : Number(a).toLocaleString('cs-CZ', {maximumFractionDigits: 2}) + ' ' + (c || '');
+const fmtSize = b => b > 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1e3)) + ' kB';
+function relDays(s) {
+  const n = daysUntil(s);
+  if (n === 0) return 'dnes';
+  if (n === 1) return 'zítra';
+  if (n === -1) return 'včera';
+  if (n < 0) return `před ${-n} dny`;
+  return `za ${n} dní`;
+}
+function b64FromBytes(u8) { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+function bytesFromB64(b) { const s = atob(b); const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2200); }
+function download(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+
+// ---------- IndexedDB ----------
+const DB = {
+  db: null,
+  open() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('zeus-offshore', 1);
+      r.onupgradeneeded = () => { const db = r.result; db.createObjectStore('kv'); db.createObjectStore('files'); };
+      r.onsuccess = () => { this.db = r.result; res(); };
+      r.onerror = () => rej(r.error);
+    });
+  },
+  tx(store, mode, fn) {
+    return new Promise((res, rej) => {
+      const t = this.db.transaction(store, mode); const s = t.objectStore(store);
+      const req = fn(s); t.oncomplete = () => res(req && req.result); t.onerror = () => rej(t.error);
+    });
+  },
+  get(store, key) { return this.tx(store, 'readonly', s => s.get(key)); },
+  put(store, key, val) { return this.tx(store, 'readwrite', s => s.put(val, key)); },
+  del(store, key) { return this.tx(store, 'readwrite', s => s.delete(key)); },
+  clear(store) { return this.tx(store, 'readwrite', s => s.clear()); },
+};
+
+// ---------- knihovna jurisdikcí (výchozí šablony) ----------
+// Pomocníci pro opakující se kroky a dokumenty
+const stepsBase = (reg, extra = []) => [
+  {id:'s1', title:'Konzultace s klientem a nabídka odeslána', info:'Domluvit strukturu (vlastníci, ředitelé, beneficienti), návrh názvu, cenu a termín.'},
+  {id:'s2', title:'Platba / záloha od klienta přijata', info:'Zkontrolujte v záložce Platby, že je platba označená jako „Zaplaceno“.', check:'payment'},
+  {id:'s3', title:'Všechny dokumenty od klienta jsou kompletní', info:'Záložka Dokumenty – všechny povinné dokumenty musí být „Schváleno“.', check:'docs'},
+  {id:'s4', title:'KYC / due diligence schválena registrovaným agentem', info:'Agent v jurisdikci musí klienta schválit dřív, než firmu založí. Kontrola sankčních seznamů a PEP.'},
+  ...reg, ...extra,
+  {id:'s98', title:'Bankovní / platební účet otevřen', info:'Podle potřeb klienta (banka, EMI, platební instituce).'},
+  {id:'s99', title:'Vše předáno klientovi', info:'Klient dostal kompletní balík dokumentů (originály / apostilované kopie) a přístupy.'}
+];
+const kyc = (o = {}) => [
+  {id:'d1', title:'Cestovní pas', info:'Ověřená kopie (notář), barevná a čitelná, pas platný ještě min. 6 měsíců.', required:true, certified:true, apostille:true, translation:false},
+  {id:'d2', title:'Doklad o adrese bydliště', info:'Výpis z banky nebo faktura za energie / internet, ne starší 3 měsíců, se jménem a adresou klienta.', required:true, certified:true, apostille:true, translation:true},
+  {id:'d3', title:'Druhý doklad totožnosti (OP nebo řidičák)', info:'Kopie obou stran.', required:false, certified:false, apostille:false, translation:false},
+  {id:'d4', title:'Vyplněný a podepsaný dotazník klienta (KYC)', info:'Osobní údaje, činnost, původ peněz.', required:true, certified:false, apostille:false, translation:false},
+  {id:'d7', title:'Prohlášení o původu prostředků / majetku (Source of Funds / Wealth)', info:'Odkud peníze pocházejí (podnikání, mzda, prodej majetku…), ideálně s doklady.', required:!!o.sow, certified:false, apostille:false, translation:true},
+  {id:'d8', title:'Bankovní reference', info:'Dopis z banky, že je klient jejím klientem v dobrém postavení (obvykle ne starší 3 měsíců), v angličtině.', required:!!o.bankref, certified:false, apostille:false, translation:true},
+  {id:'d10', title:'Profesní reference (advokát / účetní)', info:'Dopis od advokáta nebo účetního, který klienta zná min. 2 roky, v angličtině.', required:!!o.proref, certified:false, apostille:false, translation:true},
+  {id:'d11', title:'Životopis (CV)', info:'Krátký profesní životopis v angličtině.', required:!!o.cv, certified:false, apostille:false, translation:false},
+  ...(o.extra || [])
+];
+const D_NAMES = {id:'d5', title:'3 návrhy názvu', info:'Seřazené podle priority.', required:true, certified:false, apostille:false, translation:false};
+const D_ACT = {id:'d6', title:'Popis podnikatelské činnosti (anglicky)', info:'Krátce: co bude firma dělat, kdo jsou zákazníci, v jakých zemích.', required:true, certified:false, apostille:false, translation:false};
+const T_RA = {id:'t_ra', title:'Roční poplatek registrovanému agentovi', rule:'anniv', remind:30, info:'Prodloužení služeb registrovaného agenta a sídla (podle smlouvy s agentem).'};
+const T_5472 = {id:'t3', title:'IRS Form 5472 + pro-forma 1120', rule:'yearly', month:4, day:15, remind:45, info:'Pro LLC vlastněné cizincem, za předchozí kalendářní rok. Pokuta za nepodání je vysoká – ověřte s účetním.'};
+
+const DEFAULT_COUNTRIES = [
+{
+  id:'wy', name:'Wyoming (USA)', entity:'LLC', flag:'🇺🇸',
+  about:'Oblíbená americká LLC – levná, jednoduchá, vysoká anonymita (vlastníci nejsou ve veřejném rejstříku).\n• Daně: LLC je „průhledná“ – pro nerezidenta bez příjmů z USA obvykle 0 % federální daň; Wyoming nemá státní daň z příjmu.\n• Minimum: 1 vlastník (member), registered agent ve Wyomingu.\n• Povinnosti: Annual Report každý rok, Form 5472 u zahraničního vlastníka, Operating Agreement.\n• Účetnictví: vést evidenci; audit se nevyžaduje.',
+  steps: stepsBase([
+    {id:'s5', title:'Ověřena dostupnost názvu firmy', info:'Wyoming Secretary of State – Business Entity Search (wyobiz.wyo.gov). Název musí končit „LLC“, „L.L.C.“ nebo „Limited Liability Company“.'},
+    {id:'s6', title:'Registered Agent ve Wyomingu sjednán', info:'Každá firma musí mít registrovaného agenta s adresou ve Wyomingu. Platí se každý rok.'},
+    {id:'s7', title:'Articles of Organization podány', info:'Online u Wyoming Secretary of State. Státní poplatek cca 100 USD + poplatek za online platbu.'},
+    {id:'s8', title:'Firma schválena – Certificate / Articles uloženy', info:'Nahrajte schválené dokumenty. Zadáte datum založení – podle něj aplikace počítá roční termíny.', askDate:true},
+    {id:'s9', title:'Operating Agreement připravena a podepsaná', info:'Smlouva vlastníků LLC. Nikam se nepodává, ale firma ji musí mít.'},
+    {id:'s10', title:'Žádost o EIN podána (IRS, formulář SS-4)', info:'Zahraniční vlastník bez SSN žádá faxem, poštou nebo telefonicky.'},
+    {id:'s11', title:'EIN přidělen – dopis CP 575 uložen', info:'Vyplňte EIN v údajích firmy a nahrajte potvrzení z IRS.'},
+    {id:'s12', title:'BOI / FinCEN – ověřena aktuální povinnost hlášení', info:'Pravidla se v letech 2024–2025 několikrát změnila. Před každým založením ověřte na fincen.gov/boi.'}
+  ]),
+  docs: [...kyc(), D_NAMES, D_ACT, {id:'d9', title:'Podepsaný formulář SS-4 (žádost o EIN)', info:'Připravíme my, klient jen podepíše.', required:true, certified:false, apostille:false, translation:false}],
+  deadlines: [
+    {id:'t1', title:'Annual Report + License Tax (Wyoming)', rule:'anniv_month_first', remind:30, info:'Splatné 1. den měsíce, ve kterém byla firma založena. Minimum 60 USD. Podává se online u Wyoming Secretary of State. Když se nezaplatí, firma bude zrušena.'},
+    {...T_RA, id:'t2', title:'Prodloužení Registered Agenta'}, T_5472
+  ]
+},
+{
+  id:'de', name:'Delaware (USA)', entity:'LLC', flag:'🇺🇸',
+  about:'Nejprestižnější americká jurisdikce, známá pro firemní právo a soud Court of Chancery. Dražší než Wyoming.\n• Daně: LLC je „průhledná“ – pro nerezidenta bez příjmů z USA obvykle 0 % federální daň.\n• Minimum: 1 vlastník, registered agent v Delaware.\n• Povinnosti: roční franchise tax 300 USD (vždy do 1. června), Form 5472 u zahraničního vlastníka.',
+  steps: stepsBase([
+    {id:'s5', title:'Ověřena dostupnost názvu firmy', info:'Delaware Division of Corporations – Entity Search.'},
+    {id:'s6', title:'Registered Agent v Delaware sjednán', info:'Povinný, platí se ročně.'},
+    {id:'s7', title:'Certificate of Formation podán', info:'Delaware Division of Corporations, státní poplatek cca 110 USD.'},
+    {id:'s8', title:'Firma schválena – Certificate uložen', info:'Zadejte datum založení – podle něj se počítají termíny.', askDate:true},
+    {id:'s9', title:'Operating Agreement připravena a podepsaná', info:'Nikam se nepodává, ale firma ji musí mít.'},
+    {id:'s10', title:'Žádost o EIN podána (IRS, SS-4)', info:'Zahraniční vlastník bez SSN žádá faxem, poštou nebo telefonicky.'},
+    {id:'s11', title:'EIN přidělen – dopis CP 575 uložen', info:'Vyplňte EIN v údajích firmy.'},
+    {id:'s12', title:'BOI / FinCEN – ověřena aktuální povinnost hlášení', info:'Ověřte na fincen.gov/boi.'}
+  ]),
+  docs: [...kyc(), D_NAMES, D_ACT, {id:'d9', title:'Podepsaný formulář SS-4 (žádost o EIN)', info:'Připravíme my, klient jen podepíše.', required:true, certified:false, apostille:false, translation:false}],
+  deadlines: [
+    {id:'t1', title:'Delaware Annual Franchise Tax (LLC) – 300 USD', rule:'yearly', month:6, day:1, remind:30, info:'Každý rok do 1. června. Za pozdní platbu pokuta 200 USD + úroky.'},
+    T_RA, T_5472
+  ]
+},
+{
+  id:'hk', name:'Hong Kong', entity:'Private Limited Company', flag:'🇭🇰',
+  about:'Renomovaná asijská obchodní firma, dobrá pro obchod s Asií a bankovnictví.\n• Daně: teritoriální – zdaňují se jen zisky ze zdrojů v Hongkongu (8,25 % do 2 mil. HKD, pak 16,5 %). Zisky mimo HK lze nárokovat jako offshore (nutné doložit).\n• Minimum: 1 ředitel (fyzická osoba), 1 akcionář, company secretary s bydlištěm/sídlem v HK, registrované sídlo v HK.\n• Povinnosti: KAŽDÝ ROK audit účetní závěrky, daňové přiznání, Annual Return, obnova Business Registration, vedení registru skutečných majitelů (SCR).',
+  steps: stepsBase([
+    {id:'s5', title:'Ověřena dostupnost názvu (Companies Registry)', info:'Anglický a/nebo čínský název, končí „Limited“.'},
+    {id:'s6', title:'Company secretary a registrované sídlo v HK sjednány', info:'Secretary musí být rezident HK nebo HK firma.'},
+    {id:'s7', title:'Podána žádost o založení (formulář NNC1 přes e-Registry)', info:'Současně se podává registrace k Business Registration.'},
+    {id:'s8', title:'Certificate of Incorporation + Business Registration Certificate uloženy', info:'Zadejte datum založení – podle něj se počítají termíny.', askDate:true},
+    {id:'s9', title:'Registr skutečných majitelů (SCR) a registr členů založeny', info:'Musí být uložené v sídle firmy v HK.'},
+    {id:'s10', title:'Auditor jmenován', info:'Povinný audit každý rok – domluvit auditora hned na začátku.'}
+  ]),
+  docs: [...kyc({bankref:true, cv:true}), D_NAMES, D_ACT,
+    {id:'d12', title:'Údaje ředitelů a akcionářů (pas + adresa každého)', info:'Pro každou osobu ve struktuře stejné dokumenty jako u klienta.', required:true, certified:true, apostille:false, translation:false}],
+  deadlines: [
+    {id:'t1', title:'Annual Return (NAR1) – Companies Registry', rule:'anniv_offset', offset:42, remind:30, info:'Do 42 dní po výročí založení. Za pozdní podání vyšší poplatek.'},
+    {id:'t2', title:'Obnova Business Registration Certificate', rule:'anniv', remind:30, info:'Každý rok k výročí (nebo 3 roky, pokud byla zvolena tříletá registrace).'},
+    {id:'t4', title:'Profits Tax Return (BIR51) + auditovaná závěrka', rule:'yearly', month:5, day:2, remind:60, info:'Přiznání se obvykle vydává 1. dubna a podává do 1 měsíce; přes daňového zástupce lze prodloužit. První přiznání přichází cca 18 měsíců po založení. Ověřte s účetním.'},
+    T_RA
+  ]
+},
+{
+  id:'bvi', name:'Britské Panenské ostrovy (BVI)', entity:'BVI Business Company', flag:'🇻🇬',
+  about:'Klasická offshore firma, uznávaná po celém světě, často jako holdingová.\n• Daně: 0 % daň z příjmu i kapitálových zisků.\n• Minimum: 1 ředitel, 1 akcionář, registrovaný agent a sídlo na BVI.\n• Povinnosti: roční poplatek státu, skuteční majitelé v systému BOSS (neveřejné), Economic Substance report, roční finanční výkaz (Annual Return) agentovi.\n• Rejstřík ředitelů se podává registru (neveřejně).',
+  steps: stepsBase([
+    {id:'s5', title:'Ověřena dostupnost názvu', info:'Přes registrovaného agenta (BVI Registry – VIRRGIN). Název končí Limited / Ltd / Corp / Inc.'},
+    {id:'s7', title:'Memorandum & Articles of Association podány agentem', info:'Agent registruje firmu u BVI Registry of Corporate Affairs.'},
+    {id:'s8', title:'Certificate of Incorporation uložen', info:'Zadejte datum založení – podle něj se počítají termíny.', askDate:true},
+    {id:'s9', title:'Jmenován první ředitel, vydány akcie, registry založeny', info:'Register of Directors, Register of Members, skuteční majitelé do BOSS.'}
+  ]),
+  docs: [...kyc({bankref:true, sow:true}), D_NAMES, D_ACT],
+  deadlines: [
+    {id:'t1', title:'BVI roční poplatek státu (Annual Fee)', rule:'by_half', month:5, day:31, month2:11, day2:30, remind:30, info:'Firmy založené leden–červen platí do 31. 5., založené červenec–prosinec do 30. 11. Při pozdní platbě penále, pak výmaz z rejstříku.'},
+    {id:'t5', title:'Economic Substance report (přes agenta)', rule:'yearly', month:6, day:30, remind:30, info:'Do 6 měsíců po konci účetního roku (zde předpoklad: kalendářní rok).'},
+    {id:'t6', title:'Annual Financial Return registrovanému agentovi', rule:'yearly', month:9, day:30, remind:30, info:'Do 9 měsíců po konci účetního roku (předpoklad: kalendářní rok). Rozvaha + výkaz zisku a ztráty.'},
+    T_RA
+  ]
+},
+{
+  id:'sc', name:'Seychely', entity:'IBC (International Business Company)', flag:'🇸🇨',
+  about:'Levná a rychlá offshore firma.\n• Daně: IBC nemá daň ze zisku ze zahraničních zdrojů (ověřte aktuální pravidla – od 2019 se zdaňují příjmy ze Seychel).\n• Minimum: 1 ředitel, 1 akcionář, registrovaný agent a sídlo na Seychelách.\n• Povinnosti: roční licenční poplatek k výročí, vedení účetnictví, roční předání účetních záznamů agentovi, registr skutečných majitelů.',
+  steps: stepsBase([
+    {id:'s5', title:'Ověřena dostupnost názvu', info:'Přes registrovaného agenta (Financial Services Authority).'},
+    {id:'s7', title:'Memorandum & Articles podány agentem', info:'Registrace u Registrar of International Business Companies.'},
+    {id:'s8', title:'Certificate of Incorporation uložen', info:'Zadejte datum založení.', askDate:true},
+    {id:'s9', title:'Jmenován ředitel, vydány akcie, registr skutečných majitelů vyplněn', info:'Registr majitelů je u agenta, neveřejný.'}
+  ]),
+  docs: [...kyc({sow:true}), D_NAMES, D_ACT],
+  deadlines: [
+    {id:'t1', title:'Roční licenční poplatek (Seychely IBC)', rule:'anniv', remind:30, info:'Platí se k výročí založení přes agenta. Při prodlení penále a hrozí výmaz.'},
+    {id:'t6', title:'Roční účetní záznamy / Annual Return agentovi', rule:'yearly', month:6, day:30, remind:30, info:'Do 6 měsíců po konci účetního roku (předpoklad: kalendářní rok). Ověřte u agenta.'},
+    T_RA
+  ]
+},
+{
+  id:'bs', name:'Bahamy', entity:'IBC (International Business Company)', flag:'🇧🇸',
+  about:'Prestižní offshore centrum blízko USA, silný bankovní sektor.\n• Daně: 0 % daň z příjmu, kapitálových zisků i dědictví.\n• Minimum: 1 ředitel, 1 akcionář, registrovaný agent a sídlo na Bahamách.\n• Povinnosti: roční vládní poplatek, registr skutečných majitelů (SRBO – neveřejný), Economic Substance a účetní záznamy podle pokynů agenta.\n• Banky vyžadují důkladné KYC (bankovní a profesní reference).',
+  steps: stepsBase([
+    {id:'s5', title:'Ověřena dostupnost názvu', info:'Přes registrovaného agenta u Registrar General.'},
+    {id:'s7', title:'Memorandum & Articles podány agentem', info:'Registrace u Registrar General\'s Department.'},
+    {id:'s8', title:'Certificate of Incorporation uložen', info:'Zadejte datum založení.', askDate:true},
+    {id:'s9', title:'Ředitelé jmenováni, akcie vydány, SRBO vyplněn', info:'Skuteční majitelé do Secure Search System (neveřejné).'}
+  ]),
+  docs: [...kyc({bankref:true, proref:true, sow:true}), D_NAMES, D_ACT],
+  deadlines: [
+    {id:'t1', title:'Bahamy – roční vládní poplatek IBC', rule:'yearly', month:1, day:31, remind:45, info:'Obvykle splatný na začátku roku (do konce ledna) – ověřte přesné datum a částku u registrovaného agenta.'},
+    {id:'t5', title:'Economic Substance / účetní záznamy pro agenta', rule:'yearly', month:9, day:30, remind:30, info:'Termín podle pokynů agenta – upravte si datum v Nastavení → Bahamy.'},
+    T_RA
+  ]
+},
+{
+  id:'pa', name:'Panama', entity:'Sociedad Anónima (S.A.)', flag:'🇵🇦',
+  about:'Tradiční offshore akciová společnost, vhodná pro holding a mezinárodní obchod.\n• Daně: teritoriální – příjmy ze zdrojů mimo Panamu nejsou zdaněny.\n• Minimum: 3 ředitelé (prezident, tajemník, pokladník – mohou to být nominovaní), 1 akcionář, rezidentní agent (panamský advokát).\n• Povinnosti: roční franchise tax 300 USD, vedení účetnictví a předávání účetních záznamů rezidentnímu agentovi.',
+  steps: stepsBase([
+    {id:'s5', title:'Ověřena dostupnost názvu', info:'Přes rezidentního agenta u Registro Público de Panamá.'},
+    {id:'s6', title:'Ředitelé a úředníci (Directors / Officers) určeni', info:'Minimálně 3 ředitelé – prezident, tajemník, pokladník.'},
+    {id:'s7', title:'Pacto Social (stanovy) podepsány a zapsány do Registro Público', info:'Zakladatelská listina se zapisuje veřejně.'},
+    {id:'s8', title:'Firma zapsána – výpis z Registro Público uložen', info:'Zadejte datum zápisu – podle něj se počítá roční daň.', askDate:true},
+    {id:'s9', title:'Akcie vydány, registr akcionářů založen, plná moc / Power of Attorney', info:'Akcie jsou na jméno (akcie na majitele jsou zrušené).'},
+    {id:'s10', title:'Apostilace dokumentů firmy (pokud jsou potřeba v zahraničí)', info:'Panama je členem Haagské úmluvy.'}
+  ]),
+  docs: [...kyc({bankref:true, proref:true, sow:true}), D_NAMES, D_ACT],
+  deadlines: [
+    {id:'t1', title:'Panama – roční franchise tax S.A. (300 USD)', rule:'by_half', month:7, day:15, month2:1, day2:15, remind:30, info:'Firmy zapsané leden–červen platí do 15. 7., zapsané červenec–prosinec do 15. 1. Za neplacení pokuty a po čase pozastavení firmy.'},
+    {id:'t7', title:'Předání účetních záznamů rezidentnímu agentovi', rule:'yearly', month:4, day:30, remind:30, info:'Povinnost dle zákona 254/2021. Přesný termín ověřte u rezidentního agenta.'},
+    T_RA
+  ]
+},
+{
+  id:'paf', name:'Panama – nadace', entity:'Soukromá nadace (Private Interest Foundation)', flag:'🇵🇦',
+  about:'Nadace pro ochranu a předání majetku (náhrada závěti, rodinný majetek). Nemá akcionáře – majetek patří nadaci.\n• Daně: příjmy ze zdrojů mimo Panamu nejsou zdaněny.\n• Struktura: zakladatel (Founder), nadační rada (min. 3 fyzické osoby nebo 1 právnická osoba), protektor (nepovinný), beneficienti (v neveřejném Statutu / Regulations).\n• Povinnosti: roční poplatek 400 USD, účetní záznamy u rezidentního agenta.',
+  steps: stepsBase([
+    {id:'s5', title:'Ověřena dostupnost názvu nadace', info:'Přes rezidentního agenta.'},
+    {id:'s6', title:'Nadační rada, protektor a beneficienti určeni', info:'Beneficienti se uvádějí v neveřejném Statutu (Regulations).'},
+    {id:'s7', title:'Zakládací listina (Foundation Charter) podepsána a zapsána', info:'Charter se zapisuje do Registro Público.'},
+    {id:'s8', title:'Nadace zapsána – výpis z Registro Público uložen', info:'Zadejte datum zápisu.', askDate:true},
+    {id:'s9', title:'Statut / Regulations podepsán (neveřejný)', info:'Určuje beneficienty a pravidla rozdělení majetku.'},
+    {id:'s10', title:'Majetek převeden do nadace', info:'Počáteční jmění (min. 10 000 USD nebo ekvivalent) a další aktiva.'}
+  ]),
+  docs: [...kyc({bankref:true, proref:true, sow:true}),
+    {id:'d5', title:'3 návrhy názvu nadace', info:'Seřazené podle priority.', required:true, certified:false, apostille:false, translation:false},
+    {id:'d13', title:'Seznam beneficientů (jména, data narození, podíly)', info:'Pro neveřejný Statut.', required:true, certified:false, apostille:false, translation:false},
+    {id:'d14', title:'Přehled majetku, který se vloží do nadace', info:'Účty, nemovitosti, podíly ve firmách…', required:false, certified:false, apostille:false, translation:false}],
+  deadlines: [
+    {id:'t1', title:'Panama – roční poplatek nadace (400 USD)', rule:'by_half', month:7, day:15, month2:1, day2:15, remind:30, info:'Nadace zapsané leden–červen platí do 15. 7., zapsané červenec–prosinec do 15. 1.'},
+    {id:'t7', title:'Předání účetních záznamů rezidentnímu agentovi', rule:'yearly', month:4, day:30, remind:30, info:'Přesný termín ověřte u rezidentního agenta.'},
+    T_RA
+  ]
+},
+{
+  id:'ck', name:'Cookovy ostrovy – trust', entity:'International Trust (svěřenský fond)', flag:'🇨🇰',
+  about:'Jedna z nejsilnějších ochran majetku na světě (asset protection).\n• Princip: klient (Settlor) převede majetek na licencovaného trustee na Cookových ostrovech, který ho spravuje pro beneficienty. Často se kombinuje s LLC, která drží účty.\n• Ochrana: cizí rozsudky se neuznávají, věřitel musí žalovat na Cookových ostrovech, krátké promlčecí lhůty a vysoké důkazní břemeno.\n• Struktura: Settlor, Trustee (licencovaná trustee společnost), Protektor (doporučen), beneficienti, Letter of Wishes.\n• Povinnosti: roční registrační poplatek a poplatky trustee.\n• Trust se musí založit DŘÍV, než má klient problém s věřiteli.',
+  steps: stepsBase([
+    {id:'s5', title:'Trustee společnost vybrána a přijala klienta', info:'Licencovaná trustee společnost na Cookových ostrovech.'},
+    {id:'s6', title:'Struktura navržena (protektor, beneficienti, případně LLC pod trustem)', info:''},
+    {id:'s7', title:'Trust Deed (svěřenská listina) připravena a podepsána', info:'Podepisuje Settlor a Trustee.'},
+    {id:'s8', title:'Trust zaregistrován (Financial Supervisory Commission)', info:'Zadejte datum registrace – podle něj se počítají roční poplatky.', askDate:true},
+    {id:'s9', title:'Letter of Wishes podepsán', info:'Neformální přání Settlora pro trustee (kdo, kdy, co dostane).'},
+    {id:'s10', title:'Majetek převeden do trustu', info:'Převody účtů, podílů, nemovitostí – vše doložit.'}
+  ]),
+  docs: [...kyc({bankref:true, proref:true, sow:true, cv:true}),
+    {id:'d13', title:'Seznam beneficientů (jména, data narození, vztah)', info:'Pro Trust Deed a Letter of Wishes.', required:true, certified:false, apostille:false, translation:false},
+    {id:'d14', title:'Přehled majetku, který se vloží do trustu', info:'Účty, nemovitosti, podíly ve firmách…', required:true, certified:false, apostille:false, translation:false},
+    {id:'d15', title:'Čestné prohlášení o solventnosti (Affidavit of Solvency)', info:'Klient prohlašuje, že převodem majetku neobchází věřitele. Ověřený podpis.', required:true, certified:true, apostille:true, translation:false},
+    {id:'d16', title:'Pasy a adresy protektora a dospělých beneficientů', info:'Trustee je obvykle vyžaduje také.', required:false, certified:true, apostille:true, translation:true}],
+  deadlines: [
+    {id:'t1', title:'Roční registrační poplatek trustu (Cookovy ostrovy)', rule:'anniv', remind:45, info:'Hradí se přes trustee k výročí registrace.'},
+    {id:'t2', title:'Roční poplatek trustee společnosti', rule:'anniv', remind:45, info:'Podle smlouvy s trustee.'},
+    {id:'t8', title:'Roční revize trustu s klientem', rule:'anniv_offset', offset:30, remind:14, info:'Zkontrolovat beneficienty, Letter of Wishes, majetek v trustu.'}
+  ]
+}
+];
+const RULES = {anniv_month_first: '1. den měsíce výročí založení', anniv: 'Výročí založení (přesné datum)', anniv_offset: 'Výročí + počet dní', yearly: 'Každý rok stejné datum', by_half: 'Podle pololetí založení (2 data)'};
+const DOC_ST = {missing: ['Chybí', 'bad'], received: ['Přijato – zkontrolovat', 'warn'], ok: ['Schváleno', 'ok']};
+const PAY_ST = {unpaid: ['Nezaplaceno', 'bad'], processing: ['V procesu', 'warn'], paid: ['Zaplaceno', 'ok']};
+const CO_ST = {forming: ['Zakládání', 'gold'], active: ['Aktivní', 'ok'], closed: ['Ukončená', 'muted']};
+
+// ---------- state ----------
+let state = null;
+let fileMeta = null; // alias state.files
+function blankState() {
+  return {version: 1, countries: JSON.parse(JSON.stringify(DEFAULT_COUNTRIES)).map(c => ({...c, updated: Date.now()})),
+    clients: [], companies: [], payments: [], tasks: [], files: [], done: {}, settings: {lockMinutes: 10, lastBackup: null}};
+}
+async function load() {
+  state = await DB.get('kv', 'state');
+  if (!state) { state = blankState(); await save(); }
+  for (const k of ['clients','companies','payments','tasks','files','countries']) state[k] = state[k] || [];
+  state.done = state.done || {}; state.settings = state.settings || {lockMinutes: 10};
+  const removed = state.settings.removedLib || [];
+  for (const lib of DEFAULT_COUNTRIES) if (!country(lib.id) && !removed.includes(lib.id)) state.countries.push({...JSON.parse(JSON.stringify(lib)), updated: Date.now()});
+}
+async function save() { await DB.put('kv', 'state', state); }
+async function commit(msg) { await save(); render(); if (msg) toast(msg); }
+const touch = o => (o.updated = Date.now(), o);
+const country = id => state.countries.find(c => c.id === id);
+const client = id => state.clients.find(c => c.id === id);
+const company = id => state.companies.find(c => c.id === id);
+const companiesOf = cid => state.companies.filter(c => c.clientId === cid);
+const paymentsOf = (key, id) => state.payments.filter(p => p[key] === id);
+
+// ---------- password / lock ----------
+async function hashPw(pw, saltB64) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({name: 'PBKDF2', salt: bytesFromB64(saltB64), iterations: 150000, hash: 'SHA-256'}, key, 256);
+  return b64FromBytes(new Uint8Array(bits));
+}
+let unlocked = false, lastActivity = Date.now();
+async function showLock() {
+  unlocked = false; $('#app').hidden = true; $('#main').innerHTML = ''; $('#modal-root').innerHTML = '';
+  const auth = await DB.get('kv', 'auth');
+  const lock = $('#lock'); lock.hidden = false;
+  if (!window.crypto || !crypto.subtle) {
+    lock.innerHTML = `<div class="box"><div class="bolt">⚡</div><h1>ZEUS Offshore</h1><p class="muted">Tento prohlížeč neumožňuje zabezpečení heslem v tomto režimu. Otevřete aplikaci přes její webovou adresu (https) v Safari nebo Chrome.</p></div>`;
+    return;
+  }
+  if (!auth) {
+    lock.innerHTML = `<form class="box" id="setpw"><div class="bolt">⚡</div><h1>ZEUS Offshore</h1>
+      <p class="muted">Vítejte! Nastavte si heslo k aplikaci na tomto zařízení. Bez hesla se k datům nikdo nedostane.</p>
+      <input type="password" name="p1" placeholder="Nové heslo (min. 6 znaků)" autocomplete="new-password" required minlength="6">
+      <input type="password" name="p2" placeholder="Heslo znovu" autocomplete="new-password" required>
+      <div class="err" id="lock-err"></div>
+      <button class="btn primary big">Nastavit heslo a začít</button>
+      <p class="small muted" style="margin-top:14px">Heslo si zapište. Když ho zapomenete, data nejde obnovit (jen ze zálohy).</p></form>`;
+    $('#setpw').onsubmit = async e => {
+      e.preventDefault(); const f = new FormData(e.target);
+      if (f.get('p1') !== f.get('p2')) return $('#lock-err').textContent = 'Hesla se neshodují.';
+      const salt = b64FromBytes(crypto.getRandomValues(new Uint8Array(16)));
+      await DB.put('kv', 'auth', {salt, hash: await hashPw(f.get('p1'), salt)});
+      enter();
+    };
+    lock.querySelector('input').focus();
+  } else {
+    lock.innerHTML = `<form class="box" id="unl"><div class="bolt">⚡</div><h1>ZEUS Offshore</h1>
+      <p class="muted">Zadejte heslo</p>
+      <input type="password" name="p" placeholder="Heslo" autocomplete="current-password" required>
+      <div class="err" id="lock-err"></div>
+      <button class="btn primary big">Odemknout</button>
+      <p class="small"><a href="#" id="forgot">Zapomněl(a) jsem heslo</a></p></form>`;
+    $('#unl').onsubmit = async e => {
+      e.preventDefault(); const p = new FormData(e.target).get('p');
+      if (await hashPw(p, auth.salt) === auth.hash) enter();
+      else { $('#lock-err').textContent = 'Špatné heslo.'; e.target.p.value = ''; e.target.p.focus(); }
+    };
+    $('#forgot').onclick = async e => {
+      e.preventDefault();
+      const t = prompt('Heslo nejde obnovit. Můžete jen SMAZAT všechna data v tomto zařízení a začít znovu (a pak nahrát zálohu).\n\nPro smazání napište: SMAZAT');
+      if (t === 'SMAZAT') { await DB.clear('kv'); await DB.clear('files'); location.reload(); }
+    };
+    lock.querySelector('input').focus();
+  }
+}
+async function enter() {
+  await load(); unlocked = true; lastActivity = Date.now();
+  $('#lock').hidden = true; $('#lock').innerHTML = ''; $('#app').hidden = false;
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  render();
+}
+['pointerdown', 'keydown', 'touchstart'].forEach(ev => addEventListener(ev, () => lastActivity = Date.now(), {passive: true}));
+setInterval(() => {
+  if (!unlocked) return;
+  const m = Number(state.settings.lockMinutes || 0);
+  if (m > 0 && Date.now() - lastActivity > m * 60000) showLock();
+}, 15000);
+
+// ---------- deadlines engine ----------
+function occurrences(fromISO, toISO_) {
+  const from = parseISO(fromISO), to = parseISO(toISO_), out = [];
+  for (const co of state.companies) {
+    if (!co.formedDate || co.status === 'closed') continue;
+    const c = country(co.countryId); if (!c) continue;
+    const f = parseISO(co.formedDate), cl = client(co.clientId);
+    for (const dl of c.deadlines || []) {
+      for (let y = from.getFullYear(); y <= to.getFullYear(); y++) {
+        if (y <= f.getFullYear()) continue;
+        let d;
+        const anniv = new Date(y, f.getMonth(), Math.min(f.getDate(), new Date(y, f.getMonth() + 1, 0).getDate()));
+        if (dl.rule === 'anniv_month_first') d = new Date(y, f.getMonth(), 1);
+        else if (dl.rule === 'anniv') d = anniv;
+        else if (dl.rule === 'anniv_offset') { d = new Date(anniv); d.setDate(d.getDate() + Number(dl.offset || 0)); }
+        else if (dl.rule === 'by_half' && f.getMonth() >= 6) d = new Date(y, (dl.month2 || 1) - 1, dl.day2 || 1);
+        else d = new Date(y, (dl.month || 1) - 1, dl.day || 1);
+        if (d < from || d > to || (co.trackFrom && toISO(d) < co.trackFrom)) continue;
+        const key = `${co.id}|${dl.id}|${y}`;
+        out.push({key, kind: 'dl', date: toISO(d), title: dl.title, info: dl.info, remind: dl.remind || 30,
+          companyId: co.id, clientId: co.clientId, who: (co.name || 'Firma bez názvu') + (cl ? ' · ' + cl.name : ''), done: state.done[key] || null});
+      }
+    }
+  }
+  for (const t of state.tasks) {
+    if (t.date < fromISO || t.date > toISO_) continue;
+    const co = company(t.companyId), cl = client(t.clientId || co?.clientId);
+    out.push({key: 't|' + t.id, kind: 'task', taskId: t.id, date: t.date, title: t.title, info: t.note, remind: 7,
+      companyId: t.companyId, clientId: t.clientId || co?.clientId,
+      who: [co?.name, cl?.name].filter(Boolean).join(' · '), done: t.done || null});
+  }
+  return out.sort((a, b) => a.date.localeCompare(b.date));
+}
+function addDays(iso, n) { const d = parseISO(iso); d.setDate(d.getDate() + n); return toISO(d); }
+function urgent() { // nesplněné: po termínu (do 1 roku zpět) + do 60 dní
+  return occurrences(addDays(today(), -365), addDays(today(), 60)).filter(o => !o.done);
+}
+function setDone(key, val) {
+  if (key.startsWith('t|')) { const t = state.tasks.find(t => t.id === key.slice(2)); if (t) touch(t).done = val; }
+  else if (val) state.done[key] = val; else delete state.done[key];
+}
+
+// ---------- company progress ----------
+function docStatus(co, d) { return (co.docs && co.docs[d.id] && co.docs[d.id].status) || 'missing'; }
+function coProgress(co) {
+  const c = country(co.countryId); const steps = c ? c.steps : [];
+  const done = steps.filter(s => co.steps && co.steps[s.id]).length;
+  const next = steps.find(s => !(co.steps && co.steps[s.id]));
+  return {done, total: steps.length, next, pct: steps.length ? Math.round(done / steps.length * 100) : 0};
+}
+function missingDocs(co) { const c = country(co.countryId); return c ? c.docs.filter(d => d.required && docStatus(co, d) !== 'ok') : []; }
+function docTags(d) {
+  return (d.required ? '<span class="tag rq">povinné</span>' : '') +
+    (d.certified ? '<span class="tag ce">ověřená kopie</span>' : '') +
+    (d.apostille ? '<span class="tag ap">apostila</span>' : '') +
+    (d.translation ? '<span class="tag tr">překlad do EN</span>' : '');
+}
+
+// ---------- router ----------
+function route() {
+  const p = (location.hash || '#/').slice(2).split('/').map(decodeURIComponent);
+  return {name: p[0] || '', a: p[1], b: p[2]};
+}
+function render() {
+  if (!unlocked) return;
+  const r = route();
+  const navKey = {'': 'dash', klienti: 'clients', klient: 'clients', firma: 'clients', kalendar: 'cal', platby: 'pay', nastaveni: 'set', zeme: 'set'}[r.name] || 'dash';
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.nav === navKey));
+  const views = {'': viewDash, klienti: viewClients, klient: viewClient, firma: viewCompany, kalendar: viewCalendar, platby: viewPayments, nastaveni: viewSettings, zeme: viewCountry};
+  const main = $('#main');
+  const scroll = render.last === location.hash ? scrollY : 0;
+  main.innerHTML = (views[r.name] || viewDash)(r);
+  if (render.last !== location.hash) scrollTo(0, 0); else scrollTo(0, scroll);
+  render.last = location.hash;
+  const u = urgent().filter(o => daysUntil(o.date) <= 30).length;
+  const up = state.payments.filter(p => p.status !== 'paid').length;
+  $('#dl-badge').hidden = !u; $('#dl-badge').textContent = u;
+  $('#pay-badge').hidden = !up; $('#pay-badge').textContent = up;
+  if (r.name === 'zeme') bindCountryEditor();
+}
+addEventListener('hashchange', render);
+
+// ---------- views ----------
+function deadlineRow(o, showWho = true, showInfo = true) {
+  const n = daysUntil(o.date);
+  const cls = o.done ? 'ok' : n < 0 ? 'bad' : n <= 14 ? 'bad' : n <= 30 ? 'warn' : 'muted';
+  const label = o.done ? 'Hotovo ' + fmtDate(o.done) : relDays(o.date);
+  const href = o.companyId ? `#/firma/${o.companyId}/terminy` : '#/kalendar/' + o.date.slice(0, 7);
+  return `<div class="item">
+    <div style="text-align:center;min-width:56px"><div style="font-weight:800;font-size:18px">${parseISO(o.date).getDate()}.</div><div class="small muted">${MONTHS[parseISO(o.date).getMonth()].slice(0, 3)} ${parseISO(o.date).getFullYear()}</div></div>
+    <div class="main"><a href="${href}" class="t" style="text-decoration:none;color:inherit">${esc(o.title)}</a>
+      ${showWho && o.who ? `<div class="d">${esc(o.who)}</div>` : ''}
+      ${showInfo && o.info ? `<div class="d">${esc(o.info)}</div>` : ''}</div>
+    <span class="pill ${cls}">${label}</span>
+    ${o.done ? `<button class="btn small ghost" data-act="undone" data-key="${esc(o.key)}" title="Vrátit">↺</button>`
+      : `<button class="btn small ok" data-act="done" data-key="${esc(o.key)}">✔ Hotovo</button>`}
+  </div>`;
+}
+function payRow(p, showWho = true) {
+  const cl = client(p.clientId), co = company(p.companyId);
+  const n = p.due ? daysUntil(p.due) : null;
+  const late = p.status !== 'paid' && n !== null && n < 0;
+  return `<div class="item" style="flex-wrap:wrap">
+    <div class="main" style="min-width:220px"><div class="t">${esc(p.title)} <span class="muted" style="font-weight:500">· ${money(p.amount, p.currency)}</span></div>
+      <div class="d">${showWho ? `<a href="#/klient/${p.clientId}">${esc(cl?.name || '?')}</a>${co ? ' · ' + esc(co.name || 'firma') : ''} · ` : ''}
+      splatnost ${fmtDate(p.due)}${late ? ' <b style="color:var(--bad)">· PO SPLATNOSTI</b>' : ''}${p.status === 'paid' && p.paidDate ? ' · zaplaceno ' + fmtDate(p.paidDate) : ''}</div></div>
+    <div class="seg">${Object.entries(PAY_ST).map(([k, [l, c]]) => `<button class="s-${c} ${p.status === k ? 'on' : ''}" data-act="paystatus" data-id="${p.id}" data-st="${k}">${l}</button>`).join('')}</div>
+    <button class="btn small ghost" data-act="editpay" data-id="${p.id}" title="Upravit">✏️</button>
+  </div>`;
+}
+
+function viewDash() {
+  const u = urgent();
+  const overdue = u.filter(o => daysUntil(o.date) < 0), soon = u.filter(o => daysUntil(o.date) >= 0);
+  const forming = state.companies.filter(c => c.status === 'forming');
+  const unpaid = state.payments.filter(p => p.status !== 'paid').sort((a, b) => (a.due || '9').localeCompare(b.due || '9'));
+  const lb = state.settings.lastBackup;
+  const backupOld = !lb || (Date.now() - lb) > 7 * 86400000;
+  return `<div class="head"><div class="grow"><h1>Přehled</h1><p class="sub" style="margin:0">Dnes je ${new Date().toLocaleDateString('cs-CZ', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'})}</p></div>
+    <button class="btn primary big" data-act="newclient">＋ Nový klient</button></div>
+  ${backupOld && state.clients.length ? `<div class="note warn">💾 ${lb ? 'Poslední záloha byla ' + new Date(lb).toLocaleDateString('cs-CZ') : 'Ještě nemáte žádnou zálohu'}. Data jsou jen v tomto zařízení – <a href="#/nastaveni">udělejte zálohu</a>.</div>` : ''}
+  ${!state.clients.length ? `<div class="card"><h2>👋 Začínáme</h2><p>1. Klikněte na <b>＋ Nový klient</b> a vyplňte jméno.<br>2. U klienta přidejte <b>firmu</b> (např. Wyoming LLC) – aplikace vás pak provede krok za krokem.<br>3. V záložce <b>Dokumenty</b> uvidíte, co přesně od klienta potřebujete (apostila, překlad…).<br>4. Termíny (Annual Report atd.) se počítají samy podle data založení. Do kalendáře v Macu je dostanete přes <a href="#/kalendar">Kalendář → Export</a>.</p></div>` : ''}
+  <div class="grid g4" style="margin-bottom:16px">
+    <div class="card stat"><div class="n" style="color:${overdue.length ? 'var(--bad)' : 'inherit'}">${overdue.length}</div><div class="l">Termíny po splatnosti</div></div>
+    <div class="card stat"><div class="n">${soon.filter(o => daysUntil(o.date) <= 30).length}</div><div class="l">Termíny do 30 dní</div></div>
+    <div class="card stat"><div class="n">${unpaid.length}</div><div class="l">Nezaplacené platby</div></div>
+    <div class="card stat"><div class="n">${forming.length}</div><div class="l">Firmy v zakládání</div></div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><h2>⏰ Co se musí podat</h2>
+      ${overdue.length ? `<h3 style="color:var(--bad)">Po termínu!</h3><div class="list">${overdue.map(o => deadlineRow(o, true, false)).join('')}</div>` : ''}
+      <div class="list">${soon.map(o => deadlineRow(o, true, false)).join('') || (overdue.length ? '' : '<div class="empty">Nic v příštích 60 dnech 🎉</div>')}</div></div>
+    <div class="card"><h2>🏗️ Firmy v zakládání – další krok</h2><div class="list">
+      ${forming.map(co => { const p = coProgress(co); const cl = client(co.clientId); return `<a class="item" href="#/firma/${co.id}">
+        <div class="main"><div class="t">${esc(co.name || 'Firma bez názvu')} <span class="muted" style="font-weight:500">· ${esc(cl?.name || '')}</span></div>
+        <div class="d">➡️ ${esc(p.next ? p.next.title : 'Vše hotovo')}</div>
+        <div class="progress" style="margin-top:6px"><div style="width:${p.pct}%"></div></div></div>
+        <span class="pill">${p.done}/${p.total}</span></a>`; }).join('') || '<div class="empty">Žádná firma se právě nezakládá.</div>'}
+    </div></div>
+    <div class="card"><h2>💳 Čeká na platbu</h2><div class="list">${unpaid.slice(0, 8).map(p => payRow(p)).join('') || '<div class="empty">Vše zaplaceno 👍</div>'}</div>
+      ${unpaid.length > 8 ? `<a href="#/platby" class="btn small">Zobrazit všechny (${unpaid.length})</a>` : ''}</div>
+    <div class="card"><h2>📄 Chybějící dokumenty</h2><div class="list">
+      ${state.companies.filter(c => c.status === 'forming' && missingDocs(c).length).map(co => { const m = missingDocs(co); return `<a class="item" href="#/firma/${co.id}/dokumenty">
+        <div class="main"><div class="t">${esc(client(co.clientId)?.name || '')}</div><div class="d">${m.map(d => esc(d.title)).join(', ')}</div></div>
+        <span class="pill bad">${m.length}</span></a>`; }).join('') || '<div class="empty">Nic nechybí.</div>'}
+    </div></div>
+  </div>`;
+}
+
+function viewClients() {
+  const q = (viewClients.q || '').toLowerCase();
+  const list = state.clients.filter(c => !q || [c.name, c.email, c.phone, ...companiesOf(c.id).map(x => x.name)].join(' ').toLowerCase().includes(q))
+    .sort((a, b) => a.name.localeCompare(b.name, 'cs'));
+  return `<div class="head"><div class="grow"><h1>Klienti</h1><p class="sub" style="margin:0">${state.clients.length} klientů · ${state.companies.length} firem</p></div>
+    <button class="btn primary big" data-act="newclient">＋ Nový klient</button></div>
+    <input class="search" id="q" placeholder="🔍 Hledat jméno, e-mail nebo firmu…" value="${esc(viewClients.q || '')}">
+    <div class="card" style="margin-top:12px"><div class="list">${list.map(c => {
+      const cos = companiesOf(c.id); const unpaid = paymentsOf('clientId', c.id).filter(p => p.status !== 'paid').length;
+      return `<a class="item" href="#/klient/${c.id}"><div class="main"><div class="t">${esc(c.name)}</div>
+        <div class="d">${cos.map(co => `${country(co.countryId)?.flag || ''} ${esc(co.name || 'bez názvu')}`).join(', ') || 'zatím žádná firma'}</div></div>
+        ${unpaid ? `<span class="pill bad">${unpaid}× nezaplaceno</span>` : ''}
+        ${cos.some(co => co.status === 'forming') ? '<span class="pill gold">zakládání</span>' : ''}<span class="muted">›</span></a>`; }).join('')
+      || `<div class="empty">${q ? 'Nic nenalezeno.' : 'Zatím žádní klienti. Začněte tlačítkem ＋ Nový klient.'}</div>`}</div></div>`;
+}
+
+function viewClient(r) {
+  const c = client(r.a); if (!c) return notFound();
+  const cos = companiesOf(c.id), pays = paymentsOf('clientId', c.id);
+  const files = state.files.filter(f => f.clientId === c.id && !f.companyId);
+  return `<div class="crumb"><a href="#/klienti">Klienti</a> ›</div>
+  <div class="head"><div class="grow"><h1>${esc(c.name)}</h1></div>
+    <button class="btn" data-act="editclient" data-id="${c.id}">✏️ Upravit</button>
+    <button class="btn primary" data-act="newcompany" data-client="${c.id}">＋ Nová firma</button></div>
+  <div class="grid g2">
+    <div class="card"><h2>Údaje</h2><dl class="kv">
+      <dt>E-mail</dt><dd>${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : '—'}</dd>
+      <dt>Telefon</dt><dd>${c.phone ? `<a href="tel:${esc(c.phone)}">${esc(c.phone)}</a>` : '—'}</dd>
+      <dt>Státní občanství</dt><dd>${esc(c.nationality) || '—'}</dd>
+      <dt>Adresa</dt><dd>${esc(c.address) || '—'}</dd>
+      <dt>Poznámka</dt><dd style="white-space:pre-wrap">${esc(c.note) || '—'}</dd>
+      <dt>Klientem od</dt><dd>${fmtDate(c.created)}</dd></dl></div>
+    <div class="card"><h2>Firmy</h2><div class="list">${cos.map(co => { const p = coProgress(co); const [l, k] = CO_ST[co.status] || CO_ST.forming;
+      return `<a class="item" href="#/firma/${co.id}"><div class="main"><div class="t">${country(co.countryId)?.flag || ''} ${esc(co.name || 'Firma bez názvu')}</div>
+        <div class="d">${esc(country(co.countryId)?.name || '')}${co.formedDate ? ' · založena ' + fmtDate(co.formedDate) : ''}</div>
+        ${co.status === 'forming' ? `<div class="progress" style="margin-top:6px"><div style="width:${p.pct}%"></div></div>` : ''}</div>
+        <span class="pill ${k}">${l}</span></a>`; }).join('') || '<div class="empty">Zatím žádná firma. Klikněte na ＋ Nová firma.</div>'}</div></div>
+  </div>
+  <div class="card"><div class="row" style="margin-bottom:8px"><h2 style="margin:0">Platby</h2><button class="btn small right" data-act="newpay" data-client="${c.id}">＋ Přidat platbu</button></div>
+    <div class="list">${pays.map(p => payRow(p, false)).join('') || '<div class="empty">Žádné platby.</div>'}</div></div>
+  <div class="card"><div class="row" style="margin-bottom:8px"><h2 style="margin:0">Další soubory klienta</h2>
+    <label class="btn small right">📎 Nahrát soubor<input type="file" multiple hidden data-upload data-client="${c.id}"></label></div>
+    <div class="list">${files.map(fileRow).join('') || '<div class="empty">Smlouvy, e-maily, cokoliv dalšího.</div>'}</div></div>
+  <div class="row"><button class="btn danger" data-act="delclient" data-id="${c.id}">🗑 Smazat klienta</button></div>`;
+}
+function fileRow(f) {
+  return `<div class="item"><span>📄</span><div class="main"><div class="t" style="font-weight:500">${esc(f.name)}</div><div class="d">${fmtSize(f.size)} · ${fmtDate(f.added)}</div></div>
+    <button class="btn small" data-act="openfile" data-id="${f.id}">Otevřít</button>
+    <button class="btn small ghost" data-act="delfile" data-id="${f.id}" title="Smazat">🗑</button></div>`;
+}
+
+function viewCompany(r) {
+  const co = company(r.a); if (!co) return notFound();
+  const c = country(co.countryId), cl = client(co.clientId), tab = r.b || 'postup';
+  const p = coProgress(co); const [sl, sk] = CO_ST[co.status] || CO_ST.forming;
+  const tabs = [['postup', 'Postup'], ['dokumenty', 'Dokumenty'], ['terminy', 'Termíny'], ['platby', 'Platby'], ['info', 'Info o jurisdikci'], ['udaje', 'Údaje']];
+  let body = '';
+  if (!c) body = '<div class="note bad">Šablona země pro tuto firmu byla smazána.</div>';
+  else if (tab === 'postup') {
+    body = `<div class="card"><div class="row" style="margin-bottom:10px"><h2 style="margin:0">Postup založení – ${esc(c.name)}</h2><span class="pill right">${p.done} z ${p.total}</span></div>
+      <div class="progress" style="margin-bottom:14px"><div style="width:${p.pct}%"></div></div>
+      <ol class="steps">${c.steps.map((s, i) => {
+        const done = co.steps && co.steps[s.id]; const cur = !done && p.next && p.next.id === s.id;
+        let hint = '';
+        if (cur && s.check === 'docs') { const m = missingDocs(co); hint = m.length ? `<div class="note warn" style="margin:8px 0 0">Ještě chybí: ${m.map(d => esc(d.title)).join(', ')} – <a href="#/firma/${co.id}/dokumenty">otevřít dokumenty</a></div>` : `<div class="note" style="margin:8px 0 0">✅ Všechny povinné dokumenty jsou schválené.</div>`; }
+        if (cur && s.check === 'payment') { const ps = paymentsOf('companyId', co.id); hint = !ps.length ? `<div class="note warn" style="margin:8px 0 0">K firmě zatím není zadaná žádná platba – <a href="#/firma/${co.id}/platby">přidat platbu</a></div>` : ps.every(x => x.status === 'paid') ? '<div class="note" style="margin:8px 0 0">✅ Platby jsou zaplacené.</div>' : `<div class="note warn" style="margin:8px 0 0">Platba ještě není označená jako zaplacená – <a href="#/firma/${co.id}/platby">zkontrolovat</a></div>`; }
+        return `<li class="step ${done ? 'done' : ''} ${cur ? 'current' : ''}"><div class="num">${done ? '✓' : i + 1}</div><div class="body">
+          <div class="t">${esc(s.title)}</div>${s.info ? `<div class="i">${esc(s.info)}</div>` : ''}${hint}
+          ${done ? `<div class="i">✔ Hotovo ${fmtDate(done)} <a href="#" data-act="stepundo" data-co="${co.id}" data-step="${s.id}">vrátit</a></div>` : ''}
+          ${cur ? `<div class="row" style="margin-top:10px"><button class="btn ok big" data-act="stepdone" data-co="${co.id}" data-step="${s.id}">✔ Hotovo – další krok</button></div>` : ''}
+        </div></li>`; }).join('')}</ol>
+      ${!p.next ? '<div class="note">🎉 Všechny kroky jsou hotové. Firma je aktivní a aplikace hlídá její roční termíny.</div>' : ''}</div>`;
+  } else if (tab === 'dokumenty') {
+    const files = state.files.filter(f => f.companyId === co.id);
+    body = `<div class="note">Co potřebujeme od klienta pro <b>${esc(c.name)}</b>. Štítky: <span class="tag ce">ověřená kopie</span> = notářsky ověřená kopie, <span class="tag ap">apostila</span> = ověření pro zahraničí (u nás vydává notář / soud / ministerstvo), <span class="tag tr">překlad do EN</span> = úřední (soudní) překlad do angličtiny.</div>
+      <div class="card"><div class="list">${c.docs.map(d => {
+        const st = docStatus(co, d); const fs = files.filter(f => f.docId === d.id);
+        return `<div class="item" style="flex-wrap:wrap"><div class="main" style="min-width:240px"><div class="t">${esc(d.title)}</div>
+          <div style="margin:4px 0">${docTags(d)}</div>${d.info ? `<div class="d">${esc(d.info)}</div>` : ''}
+          ${fs.map(f => `<div class="d">📄 <a href="#" data-act="openfile" data-id="${f.id}">${esc(f.name)}</a> <a href="#" data-act="delfile" data-id="${f.id}" title="Smazat">✕</a></div>`).join('')}</div>
+          <label class="btn small">📎 Nahrát<input type="file" multiple hidden data-upload data-client="${co.clientId}" data-company="${co.id}" data-doc="${d.id}"></label>
+          <div class="seg">${Object.entries(DOC_ST).map(([k, [l, cl]]) => `<button class="s-${cl} ${st === k ? 'on' : ''}" data-act="docstatus" data-co="${co.id}" data-doc="${d.id}" data-st="${k}">${k === 'received' ? 'Přijato' : l}</button>`).join('')}</div>
+        </div>`; }).join('')}</div></div>
+      <div class="card"><div class="row" style="margin-bottom:8px"><h2 style="margin:0">Dokumenty firmy (Articles, EIN, smlouvy…)</h2>
+        <label class="btn small right">📎 Nahrát<input type="file" multiple hidden data-upload data-client="${co.clientId}" data-company="${co.id}"></label></div>
+        <div class="list">${files.filter(f => !f.docId).map(fileRow).join('') || '<div class="empty">Zatím nic.</div>'}</div></div>`;
+  } else if (tab === 'terminy') {
+    const occ = occurrences(addDays(today(), -400), addDays(today(), 800)).filter(o => o.companyId === co.id);
+    body = `${!co.formedDate ? '<div class="note warn">Firma ještě nemá datum založení – roční termíny se začnou počítat, až ho zadáte (krok „Firma schválena“ nebo v záložce Údaje).</div>' : ''}
+      <div class="card"><div class="row" style="margin-bottom:8px"><h2 style="margin:0">Termíny</h2><button class="btn small right" data-act="newtask" data-co="${co.id}">＋ Vlastní termín</button></div>
+      <div class="list">${occ.map(o => deadlineRow(o, false)).join('') || '<div class="empty">Žádné termíny.</div>'}</div></div>`;
+  } else if (tab === 'info') {
+    body = aboutCard(c);
+  } else if (tab === 'platby') {
+    body = `<div class="card"><div class="row" style="margin-bottom:8px"><h2 style="margin:0">Platby k firmě</h2><button class="btn small right" data-act="newpay" data-client="${co.clientId}" data-co="${co.id}">＋ Přidat platbu</button></div>
+      <div class="list">${paymentsOf('companyId', co.id).map(p => payRow(p, false)).join('') || '<div class="empty">Žádné platby.</div>'}</div></div>`;
+  } else {
+    body = `<div class="card"><dl class="kv">
+      <dt>Název</dt><dd>${esc(co.name) || '—'}</dd><dt>Země</dt><dd>${esc(c.name)} (${esc(c.entity)})</dd>
+      <dt>Stav</dt><dd><span class="pill ${sk}">${sl}</span></dd><dt>Datum založení</dt><dd>${fmtDate(co.formedDate)}</dd>
+      <dt>EIN / reg. číslo</dt><dd>${esc(co.ein) || '—'}</dd><dt>Registered Agent</dt><dd>${esc(co.agent) || '—'}</dd>
+      <dt>Poznámka</dt><dd style="white-space:pre-wrap">${esc(co.note) || '—'}</dd></dl>
+      <div class="row" style="margin-top:14px"><button class="btn" data-act="editcompany" data-id="${co.id}">✏️ Upravit údaje</button>
+      <button class="btn danger right" data-act="delcompany" data-id="${co.id}">🗑 Smazat firmu</button></div></div>`;
+  }
+  return `<div class="crumb"><a href="#/klienti">Klienti</a> › <a href="#/klient/${cl?.id}">${esc(cl?.name || '?')}</a> ›</div>
+    <div class="head"><div class="grow"><h1>${c?.flag || ''} ${esc(co.name || 'Firma bez názvu')}</h1>
+      <div class="row"><span class="pill ${sk}">${sl}</span><span class="muted small">${esc(c?.name || '')}${co.ein ? ' · EIN ' + esc(co.ein) : ''}</span></div></div>
+      <button class="btn" data-act="editcompany" data-id="${co.id}">✏️ Upravit</button></div>
+    <div class="tabs">${tabs.map(([k, l]) => `<a href="#/firma/${co.id}/${k}" class="${tab === k ? 'active' : ''}">${l}${k === 'dokumenty' && missingDocs(co).length ? ` <span class="pill bad">${missingDocs(co).length}</span>` : ''}</a>`).join('')}</div>${body}`;
+}
+
+function viewCalendar(r) {
+  const [y, m] = (r.a || today().slice(0, 7)).split('-').map(Number);
+  const first = new Date(y, m - 1, 1); const startOff = (first.getDay() + 6) % 7;
+  const start = new Date(y, m - 1, 1 - startOff);
+  const end = new Date(start); end.setDate(end.getDate() + 41);
+  const occ = occurrences(toISO(start), toISO(end));
+  const pays = state.payments.filter(p => p.status !== 'paid' && p.due && p.due >= toISO(start) && p.due <= toISO(end));
+  const sel = viewCalendar.sel && viewCalendar.sel.startsWith(`${y}-${pad(m)}`) ? viewCalendar.sel : null;
+  const prev = toISO(new Date(y, m - 2, 1)).slice(0, 7), next = toISO(new Date(y, m, 1)).slice(0, 7);
+  let cells = '';
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i); const iso = toISO(d);
+    const evs = occ.filter(o => o.date === iso), ps = pays.filter(p => p.due === iso);
+    cells += `<div class="day ${d.getMonth() !== m - 1 ? 'out' : ''} ${iso === today() ? 'today' : ''} ${iso === sel ? 'sel' : ''}" data-act="calday" data-d="${iso}">
+      <div class="dn">${d.getDate()}</div>${evs.map(o => `<div class="ev ${o.done ? 'done' : 'dl'}">${esc(o.title)}</div>`).join('')}
+      ${ps.map(p => `<div class="ev pay">💳 ${esc(client(p.clientId)?.name || '')}</div>`).join('')}</div>`;
+  }
+  const listFrom = sel || toISO(first), listTo = sel || toISO(new Date(y, m, 0));
+  const listOcc = occ.filter(o => o.date >= listFrom && o.date <= listTo);
+  const listPay = pays.filter(p => p.due >= listFrom && p.due <= listTo);
+  return `<div class="head"><div class="grow"><h1>Kalendář</h1><p class="sub" style="margin:0">Termíny podání a splatnosti plateb</p></div>
+    <button class="btn" data-act="newtask">＋ Vlastní termín</button>
+    <button class="btn gold" data-act="ics">📲 Export do kalendáře Mac/iPad</button></div>
+    <div class="row" style="margin-bottom:12px"><a class="btn" href="#/kalendar/${prev}">‹</a><h2 style="margin:0;min-width:170px;text-align:center;text-transform:capitalize">${MONTHS[m - 1]} ${y}</h2><a class="btn" href="#/kalendar/${next}">›</a>
+      <a class="btn small" href="#/kalendar/${today().slice(0, 7)}">Dnes</a></div>
+    <div class="cal">${['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'].map(x => `<div class="dh">${x}</div>`).join('')}${cells}</div>
+    <div class="card" style="margin-top:16px"><div class="row" style="margin-bottom:6px"><h2 style="margin:0">${sel ? fmtDate(sel) : 'Celý měsíc'}</h2>${sel ? '<button class="btn small right" data-act="calday" data-d="">Zobrazit celý měsíc</button>' : ''}</div>
+      <div class="list">${listOcc.map(o => deadlineRow(o)).join('')}${listPay.map(p => payRow(p)).join('')}${!listOcc.length && !listPay.length ? '<div class="empty">Nic naplánováno.</div>' : ''}</div></div>`;
+}
+
+function viewPayments(r) {
+  const f = r.a || 'open';
+  const list = state.payments.filter(p => f === 'all' || (f === 'open' ? p.status !== 'paid' : p.status === f))
+    .sort((a, b) => (a.due || '9').localeCompare(b.due || '9'));
+  const sum = cur => list.filter(p => p.currency === cur).reduce((a, p) => a + Number(p.amount || 0), 0);
+  const curs = [...new Set(list.map(p => p.currency))];
+  const fl = [['open', 'Nezaplacené'], ['processing', 'V procesu'], ['paid', 'Zaplacené'], ['all', 'Vše']];
+  return `<div class="head"><div class="grow"><h1>Platby</h1><p class="sub" style="margin:0">Klikem na stav platbu přepnete: Nezaplaceno → V procesu → Zaplaceno</p></div>
+    <button class="btn primary big" data-act="newpay">＋ Přidat platbu</button></div>
+    <div class="tabs">${fl.map(([k, l]) => `<a href="#/platby/${k}" class="${f === k ? 'active' : ''}">${l}</a>`).join('')}</div>
+    ${curs.length ? `<p class="muted">Celkem: <b>${curs.map(c => money(sum(c), c)).join(' + ')}</b></p>` : ''}
+    <div class="card"><div class="list">${list.map(p => payRow(p)).join('') || '<div class="empty">Nic tu není.</div>'}</div></div>`;
+}
+
+function viewSettings() {
+  const lb = state.settings.lastBackup;
+  return `<h1>Nastavení</h1><p class="sub">Země, záloha dat, heslo</p>
+  <div class="card"><div class="row" style="margin-bottom:8px"><h2 style="margin:0">🌍 Jurisdikce a šablony</h2><button class="btn small right" data-act="newcountry">＋ Přidat jurisdikci</button></div>
+    <p class="muted small">Pro každou jurisdikci / typ (firma, nadace, trust): základní info, kroky založení, dokumenty od klienta a roční termíny. Vše jde upravit a můžete přidávat další.</p>
+    <div class="list">${state.countries.map(c => `<a class="item" href="#/zeme/${c.id}"><span style="font-size:22px">${c.flag || '🏳️'}</span><div class="main"><div class="t">${esc(c.name)}</div>
+      <div class="d">${esc(c.entity)} · ${c.steps.length} kroků · ${c.docs.length} dokumentů · ${c.deadlines.length} ročních termínů</div></div><span class="muted">›</span></a>`).join('')}</div></div>
+  <div class="card"><h2>💾 Záloha a sdílení s kolegou</h2>
+    <p class="small">Data jsou uložená <b>jen v tomto zařízení</b>. Záloha je jeden soubor – uložte ho na bezpečné místo (iCloud Drive, flashka). Stejným souborem předáte data kolegyni: ona dá <b>Nahrát zálohu → Sloučit</b>.</p>
+    <p class="small muted">Poslední záloha: ${lb ? new Date(lb).toLocaleString('cs-CZ') : 'zatím žádná'}</p>
+    <div class="row"><button class="btn primary" data-act="export" data-files="1">⬇️ Stáhnout zálohu (vč. souborů)</button>
+      <button class="btn" data-act="export" data-files="0">⬇️ Záloha bez souborů (menší)</button>
+      <label class="btn">⬆️ Nahrát zálohu<input type="file" accept=".json,application/json" hidden id="importfile"></label></div>
+    <div class="note warn small" style="margin-top:12px">⚠️ Záloha obsahuje citlivé údaje klientů (pasy…) a <b>není zašifrovaná</b>. Posílejte ji jen bezpečnou cestou a neukládejte ji kamkoliv veřejně.</div></div>
+  <div class="card"><h2>🔒 Zabezpečení</h2>
+    <div class="field" style="max-width:320px"><label>Automaticky zamknout po nečinnosti</label>
+      <select id="lockmin">${[[0, 'Nikdy'], [5, '5 minut'], [10, '10 minut'], [30, '30 minut'], [60, '1 hodina']].map(([v, l]) => `<option value="${v}" ${Number(state.settings.lockMinutes) === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    <button class="btn" data-act="changepw">🔑 Změnit heslo</button></div>
+  <div class="card"><h2>ℹ️ O aplikaci</h2><p class="small muted">ZEUS Offshore · funguje offline · data v zařízení (IndexedDB).<br>Každý uživatel má svá data ve svém zařízení. Aby se data synchronizovala mezi lidmi automaticky, byl by potřeba server – zatím se sdílí přes zálohu.<br>Informace o poplatcích a termínech jsou orientační – ověřujte je u úřadů / registered agenta.</p>
+    <button class="btn danger small" data-act="wipe">Smazat všechna data v tomto zařízení</button></div>`;
+}
+
+// ---------- country editor ----------
+let draft = null;
+function viewCountry(r) {
+  const c = country(r.a); if (!c) return notFound();
+  if (!draft || draft.id !== c.id) draft = JSON.parse(JSON.stringify(c));
+  const d = draft;
+  const yn = (name, v, l) => `<label class="check small"><input type="checkbox" data-f="${name}" ${v ? 'checked' : ''}> ${l}</label>`;
+  const ctl = (list, i) => `<div class="row right"><button class="btn small ghost" data-ed="up" data-list="${list}" data-i="${i}" title="Nahoru">↑</button><button class="btn small ghost" data-ed="down" data-list="${list}" data-i="${i}" title="Dolů">↓</button><button class="btn small ghost" data-ed="del" data-list="${list}" data-i="${i}" title="Odebrat">🗑</button></div>`;
+  return `<div class="crumb"><a href="#/nastaveni">Nastavení</a> ›</div>
+  <div class="head"><div class="grow"><h1>${esc(d.flag)} ${esc(d.name)}</h1><p class="sub" style="margin:0">Úpravy se projeví u všech firem v této zemi. Nezapomeňte uložit.</p></div>
+    <a class="btn" href="#/nastaveni" data-act="cancelcountry">Zrušit</a><button class="btn primary" data-ed="save">💾 Uložit</button></div>
+  <div id="ced">
+  <div class="card"><div class="f2"><div class="field"><label class="req">Název země / jurisdikce</label><input data-root="name" value="${esc(d.name)}"></div>
+    <div class="field"><label>Typ (firma, nadace, trust)</label><input data-root="entity" value="${esc(d.entity)}" placeholder="LLC, Ltd, IBC…"></div>
+    <div class="field"><label>Vlajka (emoji)</label><input data-root="flag" value="${esc(d.flag)}"></div></div>
+    <div class="field"><label>Základní info (co platí, daně, povinnosti)</label><textarea data-root="about" style="min-height:160px">${esc(d.about)}</textarea></div></div>
+  <div class="card"><h2>Kroky založení</h2>${d.steps.map((s, i) => `<div class="editor-item" data-list="steps" data-i="${i}">
+    <div class="row"><b>${i + 1}.</b><input type="text" data-f="title" value="${esc(s.title)}" placeholder="Název kroku">${ctl('steps', i)}</div>
+    <textarea data-f="info" placeholder="Vysvětlení pro kolegyni">${esc(s.info)}</textarea>
+    <div class="row" style="margin-top:6px">${yn('askDate', s.askDate, 'Po dokončení se zeptat na datum založení')}
+      <select data-f="check" class="small"><option value="">Bez kontroly</option><option value="docs" ${s.check === 'docs' ? 'selected' : ''}>Kontrolovat dokumenty</option><option value="payment" ${s.check === 'payment' ? 'selected' : ''}>Kontrolovat platbu</option></select></div></div>`).join('')}
+    <button class="btn small" data-ed="add" data-list="steps">＋ Přidat krok</button></div>
+  <div class="card"><h2>Dokumenty od klienta</h2>${d.docs.map((s, i) => `<div class="editor-item" data-list="docs" data-i="${i}">
+    <div class="row"><input type="text" data-f="title" value="${esc(s.title)}" placeholder="Název dokumentu">${ctl('docs', i)}</div>
+    <textarea data-f="info" placeholder="Upřesnění">${esc(s.info)}</textarea>
+    <div class="row" style="margin-top:6px;gap:16px">${yn('required', s.required, 'Povinné')}${yn('certified', s.certified, 'Ověřená kopie')}${yn('apostille', s.apostille, 'Apostila')}${yn('translation', s.translation, 'Překlad do EN')}</div></div>`).join('')}
+    <button class="btn small" data-ed="add" data-list="docs">＋ Přidat dokument</button></div>
+  <div class="card"><h2>Roční termíny</h2>${d.deadlines.map((s, i) => `<div class="editor-item" data-list="deadlines" data-i="${i}">
+    <div class="row"><input type="text" data-f="title" value="${esc(s.title)}" placeholder="Název termínu">${ctl('deadlines', i)}</div>
+    <div class="row" style="margin-top:6px"><select data-f="rule">${Object.entries(RULES).map(([k, l]) => `<option value="${k}" ${s.rule === k ? 'selected' : ''}>${l}</option>`).join('')}</select>
+      <span class="small">den/měsíc:</span><input type="number" data-f="day" min="1" max="31" value="${s.day || ''}" style="width:60px" title="den"><input type="number" data-f="month" min="1" max="12" value="${s.month || ''}" style="width:60px" title="měsíc">
+      <span class="small">2. pololetí den/měsíc:</span><input type="number" data-f="day2" min="1" max="31" value="${s.day2 || ''}" style="width:60px"><input type="number" data-f="month2" min="1" max="12" value="${s.month2 || ''}" style="width:60px">
+      <span class="small">+ dní:</span><input type="number" data-f="offset" min="0" value="${s.offset ?? ''}" style="width:64px">
+      <span class="small">upozornit dní předem:</span><input type="number" data-f="remind" min="0" value="${s.remind ?? 30}" style="width:70px"></div>
+    <textarea data-f="info" placeholder="Co a kde se podává, kolik stojí">${esc(s.info)}</textarea></div>`).join('')}
+    <button class="btn small" data-ed="add" data-list="deadlines">＋ Přidat termín</button></div>
+  ${state.countries.length > 1 ? `<button class="btn danger" data-ed="delcountry">🗑 Smazat tuto zemi</button>` : ''}</div>`;
+}
+function collectDraft() {
+  const root = $('#ced'); if (!root || !draft) return;
+  root.querySelectorAll('[data-root]').forEach(el => draft[el.dataset.root] = el.value.trim());
+  root.querySelectorAll('.editor-item').forEach(it => {
+    const o = draft[it.dataset.list][Number(it.dataset.i)];
+    it.querySelectorAll('[data-f]').forEach(el => {
+      const k = el.dataset.f;
+      if (el.type === 'checkbox') o[k] = el.checked;
+      else if (el.type === 'number') o[k] = el.value === '' ? undefined : Number(el.value);
+      else o[k] = el.value.trim();
+    });
+  });
+}
+function bindCountryEditor() {
+  $('#main').onclick = async e => {
+    const b = e.target.closest('[data-ed]'); if (!b) return;
+    e.preventDefault(); collectDraft();
+    const L = b.dataset.list, i = Number(b.dataset.i), arr = L && draft[L];
+    switch (b.dataset.ed) {
+      case 'add': arr.push(L === 'steps' ? {id: uid(), title: '', info: ''} : L === 'docs' ? {id: uid(), title: '', info: '', required: true} : {id: uid(), title: '', info: '', rule: 'anniv_month_first', remind: 30}); break;
+      case 'del': if (!confirm('Odebrat tuto položku?')) return; arr.splice(i, 1); break;
+      case 'up': if (i > 0) [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]; break;
+      case 'down': if (i < arr.length - 1) [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]]; break;
+      case 'save': {
+        if (!draft.name) return alert('Vyplňte název země.');
+        for (const L2 of ['steps', 'docs', 'deadlines']) draft[L2] = draft[L2].filter(x => x.title);
+        for (const t of draft.deadlines) {
+          if ((t.rule === 'yearly' || t.rule === 'by_half') && !(t.day && t.month)) return alert(`U termínu „${t.title}“ vyplňte den a měsíc.`);
+          if (t.rule === 'by_half' && !(t.day2 && t.month2)) return alert(`U termínu „${t.title}“ vyplňte den a měsíc pro firmy založené ve 2. pololetí.`);
+        }
+        const idx = state.countries.findIndex(c => c.id === draft.id);
+        state.countries[idx] = touch(draft); draft = null;
+        location.hash = '#/nastaveni'; await commit('Uloženo ✔'); return;
+      }
+      case 'delcountry': {
+        const used = state.companies.filter(c => c.countryId === draft.id).length;
+        if (used) return alert(`Tuto zemi používá ${used} firem – nejdřív je smažte nebo přesuňte.`);
+        if (!confirm('Opravdu smazat zemi?')) return;
+        state.countries = state.countries.filter(c => c.id !== draft.id);
+        if (DEFAULT_COUNTRIES.some(l => l.id === draft.id)) (state.settings.removedLib = state.settings.removedLib || []).push(draft.id);
+        draft = null;
+        location.hash = '#/nastaveni'; await commit('Smazáno'); return;
+      }
+    }
+    const y = scrollY; $('#main').innerHTML = viewCountry(route()); scrollTo(0, y);
+  };
+}
+function aboutCard(c) {
+  return `<div class="card"><h2>${esc(c.flag || '')} ${esc(c.name)} – ${esc(c.entity)}</h2>
+    <div style="white-space:pre-wrap">${esc(c.about) || '<span class="muted">Zatím bez popisu – doplňte v Nastavení.</span>'}</div>
+    <h3 style="margin-top:16px">Roční termíny, které aplikace hlídá</h3>
+    <div class="list">${(c.deadlines || []).map(t => `<div class="item"><div class="main"><div class="t">${esc(t.title)}</div><div class="d">${esc(ruleText(t))}${t.info ? ' · ' + esc(t.info) : ''}</div></div></div>`).join('') || '<div class="empty">Žádné.</div>'}</div>
+    <p class="small muted" style="margin-top:12px">Informace jsou orientační a pravidla se mění – vždy ověřte u registrovaného agenta / úřadu. Upravit: Nastavení → ${esc(c.name)}.</p></div>`;
+}
+function ruleText(t) {
+  const dm = (d, m) => `${d}. ${m}.`;
+  return {anniv_month_first: '1. den měsíce výročí založení', anniv: 'každý rok k výročí založení', anniv_offset: `${t.offset || 0} dní po výročí založení`,
+    yearly: 'každý rok ' + dm(t.day, t.month), by_half: `založeno v 1. pololetí: ${dm(t.day, t.month)}, ve 2. pololetí: ${dm(t.day2, t.month2)}`}[t.rule] || '';
+}
+function notFound() { return `<div class="card"><h2>Nenalezeno</h2><p>Záznam neexistuje (možná byl smazán).</p><a class="btn" href="#/">Zpět na přehled</a></div>`; }
+
+// ---------- modal forms ----------
+function modal(title, body, onSubmit, {submit = 'Uložit', wide = false} = {}) {
+  const root = $('#modal-root');
+  root.innerHTML = `<div class="back"><form class="modal ${wide ? 'wide' : ''}" novalidate><div class="mh"><h2>${title}</h2><button type="button" class="btn ghost" data-close>✕</button></div>
+    <div class="mb">${body}</div><div class="mf"><button type="button" class="btn" data-close>Zrušit</button><button class="btn primary">${submit}</button></div></form></div>`;
+  const form = root.querySelector('form');
+  root.querySelectorAll('[data-close]').forEach(b => b.onclick = () => root.innerHTML = '');
+  form.onsubmit = async e => {
+    e.preventDefault();
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const data = Object.fromEntries(new FormData(form).entries());
+    form.querySelectorAll('input[type=checkbox]').forEach(c => data[c.name] = c.checked);
+    const r = await onSubmit(data, form);
+    if (r !== false) root.innerHTML = '';
+  };
+  const first = form.querySelector('input:not([type=hidden]),select,textarea'); if (first) setTimeout(() => first.focus(), 50);
+  return form;
+}
+const F = (label, input, hint = '', req = false) => `<div class="field"><label class="${req ? 'req' : ''}">${label}</label>${input}${hint ? `<div class="hint">${hint}</div>` : ''}</div>`;
+const inp = (name, v = '', a = '') => `<input name="${name}" value="${esc(v)}" ${a}>`;
+const opt = (pairs, sel) => pairs.map(([v, l]) => `<option value="${esc(v)}" ${String(v) === String(sel) ? 'selected' : ''}>${esc(l)}</option>`).join('');
+
+function clientForm(c = {}) {
+  return F('Jméno a příjmení', inp('name', c.name, 'required autocomplete="off"'), '', true) +
+    `<div class="f2">${F('E-mail', inp('email', c.email, 'type="email"'))}${F('Telefon', inp('phone', c.phone, 'type="tel"'))}</div>` +
+    `<div class="f2">${F('Státní občanství', inp('nationality', c.nationality, 'placeholder="např. Česká republika"'))}${F('Adresa', inp('address', c.address))}</div>` +
+    F('Poznámka', `<textarea name="note">${esc(c.note)}</textarea>`);
+}
+function companyForm(co = {}, isNew = false) {
+  return F('Jurisdikce a typ', `<select name="countryId" id="cf-country" required ${isNew ? '' : 'disabled'}>${opt(state.countries.map(c => [c.id, `${c.flag || ''} ${c.name} – ${c.entity}`]), co.countryId)}</select>`, '', true) +
+    (isNew ? `<div id="cf-about" class="note small" style="white-space:pre-wrap;max-height:220px;overflow:auto"></div>` : '') +
+    F('Název firmy', inp('name', co.name, 'placeholder="např. Alpha Trading LLC"'), 'Můžete nechat prázdné a doplnit, až bude název schválený.') +
+    (isNew ? `<label class="check" style="margin-bottom:12px"><input type="checkbox" name="existing" id="existing"> Firma už existuje – jen chci hlídat termíny a platby (od dneška dál)</label>` : '') +
+    `<div class="f2">${F('Datum založení', inp('formedDate', co.formedDate, 'type="date"'), 'Podle něj se počítají roční termíny.')}${F('EIN / registrační číslo', inp('ein', co.ein))}</div>` +
+    (isNew ? '' : F('Stav', `<select name="status">${opt(Object.entries(CO_ST).map(([k, v]) => [k, v[0]]), co.status)}</select>`)) +
+    F('Registered Agent', inp('agent', co.agent)) + F('Poznámka', `<textarea name="note">${esc(co.note)}</textarea>`);
+}
+function payForm(p = {}) {
+  const cls = [...state.clients].sort((a, b) => a.name.localeCompare(b.name, 'cs'));
+  const cid = p.clientId || cls[0]?.id;
+  return F('Klient', `<select name="clientId" required id="pf-client">${opt(cls.map(c => [c.id, c.name]), cid)}</select>`, '', true) +
+    F('Firma (nepovinné)', `<select name="companyId" id="pf-co">${opt([['', '— bez firmy —'], ...companiesOf(cid).map(c => [c.id, c.name || 'Firma bez názvu'])], p.companyId)}</select>`) +
+    F('Za co', inp('title', p.title, 'required placeholder="např. Založení Wyoming LLC, Annual Report 2026"'), '', true) +
+    `<div class="f2">${F('Částka', inp('amount', p.amount, 'type="number" step="0.01" min="0" required'), '', true)}${F('Měna', `<select name="currency">${opt([['EUR', 'EUR'], ['USD', 'USD'], ['CZK', 'CZK']], p.currency || 'EUR')}</select>`)}</div>` +
+    `<div class="f2">${F('Splatnost', inp('due', p.due || addDays(today(), 14), 'type="date"'))}${F('Stav', `<select name="status">${opt(Object.entries(PAY_ST).map(([k, v]) => [k, v[0]]), p.status || 'unpaid')}</select>`)}</div>` +
+    F('Poznámka', `<textarea name="note">${esc(p.note)}</textarea>`);
+}
+function bindPayForm(form) {
+  const sel = form.querySelector('#pf-client'), co = form.querySelector('#pf-co');
+  sel.onchange = () => co.innerHTML = opt([['', '— bez firmy —'], ...companiesOf(sel.value).map(c => [c.id, c.name || 'Firma bez názvu'])], '');
+}
+
+// ---------- files ----------
+async function uploadFiles(input) {
+  const {client: clientId, company: companyId, doc: docId} = input.dataset;
+  const files = [...input.files]; if (!files.length) return;
+  for (const f of files) {
+    if (f.size > 50e6) { alert(`Soubor ${f.name} je větší než 50 MB.`); continue; }
+    const id = uid();
+    await DB.put('files', id, f);
+    state.files.push(touch({id, clientId, companyId: companyId || null, docId: docId || null, name: f.name, type: f.type, size: f.size, added: today()}));
+  }
+  if (docId) { const co = company(companyId); co.docs = co.docs || {}; const cur = co.docs[docId]?.status; if (!cur || cur === 'missing') { co.docs[docId] = {status: 'received'}; touch(co); } }
+  await commit(files.length > 1 ? `Nahráno ${files.length} souborů` : 'Soubor nahrán');
+}
+async function openFile(id) {
+  const meta = state.files.find(f => f.id === id); const blob = await DB.get('files', id);
+  if (!blob) return alert('Soubor v tomto zařízení není (možná byl obnoven ze zálohy bez souborů).');
+  const url = URL.createObjectURL(blob);
+  const w = window.open(url, '_blank');
+  if (!w) download(meta?.name || 'soubor', blob);
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+async function deleteFilesWhere(pred) {
+  const del = state.files.filter(pred);
+  for (const f of del) await DB.del('files', f.id);
+  state.files = state.files.filter(f => !pred(f));
+}
+
+// ---------- ICS export ----------
+function icsEscape(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/[,;]/g, m => '\\' + m); }
+function icsFold(line) { const out = []; let s = line; while (s.length > 73) { out.push(s.slice(0, 73)); s = ' ' + s.slice(73); } out.push(s); return out.join('\r\n'); }
+function exportICS() {
+  const from = addDays(today(), -30), to = addDays(today(), 730);
+  const occ = occurrences(from, to).filter(o => !o.done);
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ZEUS Offshore//CS', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:ZEUS Offshore'];
+  const ev = (uidv, date, summary, desc, remind) => {
+    const d = date.replace(/-/g, ''), d2 = addDays(date, 1).replace(/-/g, '');
+    L.push('BEGIN:VEVENT', 'UID:' + uidv + '@zeus-offshore', 'DTSTAMP:' + stamp, 'DTSTART;VALUE=DATE:' + d, 'DTEND;VALUE=DATE:' + d2,
+      'SUMMARY:' + icsEscape(summary), 'DESCRIPTION:' + icsEscape(desc), 'TRANSP:TRANSPARENT');
+    for (const r of [remind, 1].filter((v, i, a) => v > 0 && a.indexOf(v) === i))
+      L.push('BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEscape(summary), `TRIGGER:-P${r}D`, 'END:VALARM');
+    L.push('END:VEVENT');
+  };
+  for (const o of occ) ev(o.key.replace(/\|/g, '-'), o.date, `⚡ ${o.title}${o.who ? ' – ' + o.who : ''}`, o.info || '', o.remind);
+  for (const p of state.payments.filter(p => p.status !== 'paid' && p.due && p.due >= from))
+    ev('pay-' + p.id, p.due, `💳 Platba: ${client(p.clientId)?.name || ''} – ${p.title}`, `${money(p.amount, p.currency)}\n${p.note || ''}`, 3);
+  L.push('END:VCALENDAR');
+  download(`ZEUS-Offshore-kalendar-${today()}.ics`, new Blob([L.map(icsFold).join('\r\n')], {type: 'text/calendar'}));
+  modal('Export do kalendáře', `<p>Soubor <b>.ics</b> se stáhl (${occ.length} termínů + nezaplacené platby, s upozorněním předem).</p>
+    <p><b>Mac:</b> otevřete stažený soubor dvojklikem → Kalendář se zeptá, do kterého kalendáře ho přidat. Doporučujeme si v Kalendáři nejdřív vytvořit nový kalendář „ZEUS Offshore“.</p>
+    <p><b>iPad:</b> klepněte na stažený soubor ve Stažených → „Přidat vše“.</p>
+    <p class="muted small">Když přibudou noví klienti, export zopakujte. Aby se termíny neduplikovaly, před novým importem v Kalendáři smažte kalendář „ZEUS Offshore“ a vytvořte ho znovu – nebo importujte jen do prázdného kalendáře.</p>`, () => {}, {submit: 'Rozumím'});
+}
+
+// ---------- backup ----------
+async function exportBackup(withFiles) {
+  toast('Připravuji zálohu…');
+  const files = [];
+  if (withFiles) for (const f of state.files) { const b = await DB.get('files', f.id); if (b) files.push({id: f.id, data: b64FromBytes(new Uint8Array(await b.arrayBuffer()))}); }
+  const payload = {app: 'zeus-offshore', version: 1, exported: new Date().toISOString(), withFiles, state, files};
+  download(`ZEUS-Offshore-zaloha-${today()}${withFiles ? '' : '-bez-souboru'}.json`, new Blob([JSON.stringify(payload)], {type: 'application/json'}));
+  state.settings.lastBackup = Date.now(); await commit('Záloha stažena ✔');
+}
+function mergeById(local, incoming) {
+  const map = new Map(local.map(x => [x.id, x]));
+  for (const x of incoming) { const l = map.get(x.id); if (!l || (x.updated || 0) > (l.updated || 0)) map.set(x.id, x); }
+  return [...map.values()];
+}
+async function importBackup(file) {
+  let data;
+  try { data = JSON.parse(await file.text()); } catch { return alert('Tento soubor není záloha ZEUS Offshore.'); }
+  if (data.app !== 'zeus-offshore' || !data.state) return alert('Tento soubor není záloha ZEUS Offshore.');
+  const s = data.state;
+  modal('Nahrát zálohu', `<p>Záloha z <b>${new Date(data.exported).toLocaleString('cs-CZ')}</b>: ${s.clients.length} klientů, ${s.companies.length} firem, ${s.payments.length} plateb${data.withFiles ? `, ${data.files.length} souborů` : ' (bez souborů)'}.</p>
+    <label class="check" style="margin-bottom:10px"><input type="radio" name="mode" value="merge" checked> <span><b>Sloučit</b> – přidá nové a aktualizuje změněné záznamy. Nic se nesmaže. <i>(doporučeno)</i></span></label>
+    <label class="check"><input type="radio" name="mode" value="replace"> <span><b>Nahradit vše</b> – smaže data v tomto zařízení a nahraje zálohu.</span></label>`, async d => {
+    if (d.mode === 'replace') {
+      if (!confirm('Opravdu SMAZAT data v tomto zařízení a nahradit je zálohou?')) return false;
+      await DB.clear('files'); const settings = state.settings; state = s; state.settings = {...settings, ...{lockMinutes: settings.lockMinutes}};
+    } else {
+      for (const k of ['clients', 'companies', 'payments', 'tasks', 'files', 'countries']) state[k] = mergeById(state[k] || [], s[k] || []);
+      state.done = {...(s.done || {}), ...state.done};
+    }
+    for (const f of data.files || []) await DB.put('files', f.id, new Blob([bytesFromB64(f.data)], {type: (s.files.find(x => x.id === f.id) || {}).type || ''}));
+    await commit('Záloha nahrána ✔');
+  }, {submit: 'Nahrát'});
+}
+
+// ---------- actions ----------
+const actions = {
+  lock: () => showLock(),
+  newclient: () => modal('Nový klient', clientForm(), async d => {
+    const c = touch({id: uid(), ...d, name: d.name.trim(), created: today()});
+    if (!c.name) return alert('Vyplňte jméno.'), false;
+    state.clients.push(c); location.hash = '#/klient/' + c.id; await commit('Klient přidán ✔');
+    setTimeout(() => { if (confirm('Chcete klientovi rovnou přidat firmu?')) actions.newcompany({client: c.id}); }, 300);
+  }),
+  editclient: ({id}) => { const c = client(id); modal('Upravit klienta', clientForm(c), async d => { Object.assign(c, d); touch(c); await commit('Uloženo ✔'); }); },
+  delclient: async ({id}) => {
+    const c = client(id); const n = companiesOf(id).length;
+    if (!confirm(`Smazat klienta ${c.name}${n ? ` včetně ${n} firem, plateb a dokumentů` : ''}? Tohle nejde vrátit.`)) return;
+    const coIds = companiesOf(id).map(x => x.id);
+    state.clients = state.clients.filter(x => x.id !== id);
+    state.companies = state.companies.filter(x => x.clientId !== id);
+    state.payments = state.payments.filter(x => x.clientId !== id);
+    state.tasks = state.tasks.filter(x => x.clientId !== id && !coIds.includes(x.companyId));
+    await deleteFilesWhere(f => f.clientId === id);
+    location.hash = '#/klienti'; await commit('Smazáno');
+  },
+  newcompany: ({client: clientId}) => {
+    const form = modal('Nová firma / nadace / trust', companyForm({countryId: state.countries[0]?.id}, true), async d => {
+      if (d.existing && !d.formedDate) return alert('U existující firmy vyplňte datum založení – podle něj se počítají termíny.'), false;
+      const c = country(d.countryId);
+      const co = touch({id: uid(), clientId, countryId: d.countryId, name: d.name.trim(), formedDate: d.formedDate || null, ein: d.ein, agent: d.agent, note: d.note,
+        status: d.existing ? 'active' : 'forming', steps: {}, docs: {}, created: today(), trackFrom: d.existing ? today() : null});
+      if (d.existing) { c.steps.forEach(s => co.steps[s.id] = d.formedDate); c.docs.forEach(x => co.docs[x.id] = {status: 'ok'}); }
+      state.companies.push(co); location.hash = '#/firma/' + co.id; await commit('Firma přidána ✔');
+    }, {submit: 'Přidat'});
+    const sel = form.querySelector('#cf-country'), box = form.querySelector('#cf-about');
+    const show = () => { const c = country(sel.value); box.innerHTML = `<b>${esc(c.name)} – ${esc(c.entity)}</b>\n${esc(c.about || '')}\n\n<b>Aplikace bude hlídat:</b> ${c.deadlines.map(t => esc(t.title)).join(', ') || '—'}`; };
+    sel.onchange = show; show();
+  },
+  editcompany: ({id}) => { const co = company(id); modal('Upravit firmu', companyForm(co), async d => {
+    Object.assign(co, {name: d.name.trim(), formedDate: d.formedDate || null, ein: d.ein, agent: d.agent, note: d.note, status: d.status}); touch(co); await commit('Uloženo ✔'); }); },
+  delcompany: async ({id}) => {
+    const co = company(id); if (!confirm(`Smazat firmu ${co.name || ''} včetně jejích plateb a dokumentů? Tohle nejde vrátit.`)) return;
+    state.companies = state.companies.filter(x => x.id !== id);
+    state.payments = state.payments.filter(x => x.companyId !== id);
+    state.tasks = state.tasks.filter(x => x.companyId !== id);
+    await deleteFilesWhere(f => f.companyId === id);
+    location.hash = '#/klient/' + co.clientId; await commit('Smazáno');
+  },
+  stepdone: ({co: id, step}) => {
+    const co = company(id), c = country(co.countryId), s = c.steps.find(x => x.id === step);
+    const finish = async date => {
+      co.steps = co.steps || {}; co.steps[step] = today();
+      if (s.askDate) co.formedDate = date;
+      const p = coProgress(co); if (!p.next && co.status === 'forming') co.status = 'active';
+      touch(co); await commit(p.next ? 'Hotovo ✔ Další krok: ' + p.next.title : '🎉 Firma je založená!');
+    };
+    if (s.check === 'docs' && missingDocs(co).length && !confirm('Některé povinné dokumenty ještě nejsou schválené. Opravdu označit krok jako hotový?')) return;
+    if (s.check === 'payment' && !paymentsOf('companyId', co.id).some(p => p.status === 'paid') && !confirm('Žádná platba k firmě není označená jako zaplacená. Opravdu pokračovat?')) return;
+    if (s.askDate) modal('Datum založení firmy', F('Kdy byla firma schválena / založena?', inp('date', co.formedDate || today(), 'type="date" required'), 'Datum na Certificate / Filed Articles. Podle něj se počítá Annual Report.', true) +
+      (co.name ? '' : F('Schválený název firmy', inp('name', '', 'placeholder="např. Alpha Trading LLC"'))), async d => { if (d.name) co.name = d.name.trim(); await finish(d.date); }, {submit: 'Uložit a pokračovat'});
+    else finish();
+  },
+  stepundo: async ({co: id, step}) => { const co = company(id); delete co.steps[step]; if (co.status === 'active' && coProgress(co).next) co.status = 'forming'; touch(co); await commit('Krok vrácen'); },
+  docstatus: async ({co: id, doc, st}) => { const co = company(id); co.docs = co.docs || {}; co.docs[doc] = {...(co.docs[doc] || {}), status: st}; touch(co); await commit(); },
+  paystatus: async ({id, st}) => { const p = state.payments.find(x => x.id === id); p.status = st; p.paidDate = st === 'paid' ? (p.paidDate || today()) : null; touch(p); await commit(PAY_ST[st][0] + ' ✔'); },
+  newpay: ({client: cid, co}) => {
+    if (!state.clients.length) return alert('Nejdřív přidejte klienta.');
+    const form = modal('Nová platba', payForm({clientId: cid, companyId: co}), async d => {
+      state.payments.push(touch({id: uid(), ...d, amount: Number(d.amount), paidDate: d.status === 'paid' ? today() : null, created: today()})); await commit('Platba přidána ✔');
+    }); bindPayForm(form);
+  },
+  editpay: ({id}) => {
+    const p = state.payments.find(x => x.id === id);
+    const form = modal('Upravit platbu', payForm(p) + `<button type="button" class="btn danger small" id="delpay">🗑 Smazat platbu</button>`, async d => {
+      Object.assign(p, d, {amount: Number(d.amount)}); if (p.status === 'paid' && !p.paidDate) p.paidDate = today(); if (p.status !== 'paid') p.paidDate = null; touch(p); await commit('Uloženo ✔');
+    }); bindPayForm(form);
+    form.querySelector('#delpay').onclick = async () => { if (!confirm('Smazat platbu?')) return; state.payments = state.payments.filter(x => x.id !== id); $('#modal-root').innerHTML = ''; await commit('Smazáno'); };
+  },
+  done: async ({key}) => { setDone(key, today()); await commit('Označeno jako hotové ✔'); },
+  undone: async ({key}) => { setDone(key, null); await commit('Vráceno'); },
+  newtask: ({co}) => {
+    const cos = state.companies.map(c => [c.id, `${c.name || 'Firma bez názvu'} · ${client(c.clientId)?.name || ''}`]);
+    modal('Vlastní termín', F('Co je potřeba udělat', inp('title', '', 'required placeholder="např. Poslat klientovi Operating Agreement"'), '', true) +
+      F('Datum', inp('date', viewCalendar.sel || today(), 'type="date" required'), '', true) +
+      F('Firma (nepovinné)', `<select name="companyId">${opt([['', '— žádná —'], ...cos], co || '')}</select>`) + F('Poznámka', `<textarea name="note"></textarea>`), async d => {
+      state.tasks.push(touch({id: uid(), title: d.title, date: d.date, note: d.note, companyId: d.companyId || null, clientId: company(d.companyId)?.clientId || null, done: null}));
+      await commit('Termín přidán ✔');
+    });
+  },
+  calday: ({d}) => { viewCalendar.sel = d || null; render(); },
+  ics: () => exportICS(),
+  openfile: ({id}) => openFile(id),
+  delfile: async ({id}) => { const f = state.files.find(x => x.id === id); if (!confirm(`Smazat soubor ${f?.name}?`)) return; await deleteFilesWhere(x => x.id === id); await commit('Soubor smazán'); },
+  export: ({files}) => exportBackup(files === '1'),
+  newcountry: () => modal('Přidat jurisdikci', F('Název země / jurisdikce', inp('name', '', 'required placeholder="např. Delaware (USA), BVI, Dubaj…"'), '', true) +
+    `<div class="f2">${F('Typ (firma / nadace / trust)', inp('entity', 'LLC'))}${F('Vlajka (emoji)', inp('flag', '🏳️'))}</div>` +
+    F('Začít z', `<select name="from">${opt([['', 'Prázdné šablony'], ...state.countries.map(c => [c.id, 'Kopie: ' + c.name])], '')}</select>`, 'Kopie se hodí, když je postup podobný – pak jen upravíte rozdíly.'), async d => {
+    const src = country(d.from);
+    const c = touch({id: uid(), name: d.name.trim(), entity: d.entity, flag: d.flag, about: src ? src.about : '',
+      steps: src ? src.steps.map(s => ({...s, id: uid()})) : [], docs: src ? src.docs.map(s => ({...s, id: uid()})) : [], deadlines: src ? src.deadlines.map(s => ({...s, id: uid()})) : []});
+    state.countries.push(c); draft = null; location.hash = '#/zeme/' + c.id; await commit('Přidáno – teď upravte šablony');
+  }),
+  cancelcountry: () => { draft = null; },
+  changepw: () => modal('Změnit heslo', F('Současné heslo', '<input type="password" name="old" required>') + F('Nové heslo', '<input type="password" name="p1" required minlength="6">', 'Minimálně 6 znaků') + F('Nové heslo znovu', '<input type="password" name="p2" required>'), async d => {
+    const auth = await DB.get('kv', 'auth');
+    if (await hashPw(d.old, auth.salt) !== auth.hash) return alert('Současné heslo nesedí.'), false;
+    if (d.p1 !== d.p2) return alert('Nová hesla se neshodují.'), false;
+    const salt = b64FromBytes(crypto.getRandomValues(new Uint8Array(16)));
+    await DB.put('kv', 'auth', {salt, hash: await hashPw(d.p1, salt)}); toast('Heslo změněno ✔');
+  }),
+  wipe: async () => {
+    const t = prompt('Smaže VŠECHNA data v tomto zařízení (klienty, dokumenty, heslo). Udělejte si nejdřív zálohu!\n\nPro potvrzení napište: SMAZAT');
+    if (t !== 'SMAZAT') return;
+    await DB.clear('kv'); await DB.clear('files'); location.hash = '#/'; location.reload();
+  },
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el || !unlocked) return;
+  if (el.tagName === 'A' && el.dataset.act !== 'cancelcountry') e.preventDefault();
+  const fn = actions[el.dataset.act]; if (fn) fn(el.dataset, el);
+});
+document.addEventListener('change', e => {
+  if (!unlocked) return;
+  if (e.target.matches('[data-upload]')) uploadFiles(e.target).finally(() => e.target.value = '');
+  if (e.target.id === 'importfile') { const f = e.target.files[0]; e.target.value = ''; if (f) importBackup(f); }
+  if (e.target.id === 'lockmin') { state.settings.lockMinutes = Number(e.target.value); save(); toast('Uloženo ✔'); }
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'q') { viewClients.q = e.target.value; const pos = e.target.selectionStart; render(); const q = $('#q'); q.focus(); q.setSelectionRange(pos, pos); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#modal-root').innerHTML = ''; });
+
+// ---------- start ----------
+(async () => {
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+  try { await DB.open(); } catch (e) { document.body.innerHTML = '<p style="padding:30px">Tento prohlížeč neumožňuje ukládat data (možná je zapnuté soukromé okno). Otevřete aplikaci v normálním okně Safari / Chrome.</p>'; return; }
+  showLock();
+})();
+</script>
+</body>
+</html>
